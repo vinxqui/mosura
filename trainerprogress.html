@@ -1,0 +1,577 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <script src="supabase-config.js"></script>
+  <script src="gtg-db.js"></script>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+<title>Member Progress · GTG Fitness Trainer</title>
+<meta name="description" content="GTG Fitness trainer: member list, attendance logs, measurements and session progress." />
+
+<!-- Progressive web app -->
+<meta name="theme-color" content="#14304a" />
+<link rel="manifest" href="manifest.webmanifest" />
+<link rel="icon" type="image/png" href="icons/icon-192.png" />
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png" />
+<meta name="mobile-web-app-capable" content="yes" />
+<meta name="apple-mobile-web-app-capable" content="yes" />
+<meta name="apple-mobile-web-app-title" content="GTG Trainer" />
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Anton&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+<link href="https://fonts.googleapis.com/css2?family=BBH+Bogle&display=swap" rel="stylesheet" />
+
+<link rel="stylesheet" href="app.css?v=30" />
+<link rel="stylesheet" href="responsive.css" />
+<link rel="stylesheet" href="trainer.css?v=1" />
+<style>
+/* ===== Member Progress (trainer) ===== */
+.app-aside[hidden] { display: none; }
+.mm-title { font-size: clamp(1.5rem, 2.6vw, 2rem); margin-bottom: 0.9rem; }
+
+/* toolbar */
+.mm-toolbar { display: flex; flex-wrap: wrap; align-items: center; gap: 0.6rem; margin-bottom: 1rem; }
+.mm-search {
+  position: relative; flex: 1 1 260px; max-width: 460px;
+}
+.mm-search svg { position: absolute; left: 0.95rem; top: 50%; width: 18px; height: 18px; transform: translateY(-50%); color: #8a8a87; pointer-events: none; }
+.mm-search input {
+  width: 100%; padding: 0.7rem 1rem 0.7rem 2.6rem; border: 1px solid var(--border-soft); border-radius: var(--radius-pill);
+  background: #fff; font-size: 0.95rem; box-shadow: 0 3px 0 #d3d3d0;
+}
+.mm-search input:focus { outline: none; border-color: var(--navy-accent); box-shadow: 0 3px 0 #d3d3d0, 0 0 0 3px rgba(31, 78, 121, 0.18); }
+.mm-search-btn {
+  padding: 0.62rem 1.3rem; border: 0; border-radius: var(--radius-pill); background: var(--navy-deep); color: #fff;
+  font-weight: 700; font-size: 0.9rem; cursor: pointer; transition: background-color 0.2s ease;
+}
+.mm-search-btn:hover { background: var(--navy-accent-hover); }
+.mm-toolbar__cat { margin-left: auto; }
+
+.mm-select select {
+  appearance: none; -webkit-appearance: none; padding: 0.6rem 2.1rem 0.6rem 0.95rem; border: 1px solid var(--border-soft);
+  border-radius: 8px; background: #fff url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'><path d='M1 1l5 5 5-5' fill='none' stroke='%23333' stroke-width='2'/></svg>") no-repeat right 0.8rem center;
+  font-weight: 700; font-size: 0.9rem; color: var(--text-dark); cursor: pointer; max-width: 100%;
+}
+.mm-select select:focus-visible { outline: 2px solid var(--navy-accent-hover); outline-offset: 2px; }
+.mm-select--sm select { padding: 0.35rem 1.8rem 0.35rem 0.7rem; font-size: 0.82rem; }
+
+/* list */
+.mm-list-card { padding: clamp(0.75rem, 1.6vw, 1.25rem); }
+.mm-list { list-style: none; margin: 0; padding: 0.15rem 0.15rem 0.3rem; display: flex; flex-direction: column; gap: 0.7rem; max-height: calc(100vh - 14rem); min-height: 12rem; overflow-y: auto; }
+.mm-row {
+  display: flex; align-items: center; gap: 0.75rem; padding: 0.75rem 1rem; border: 1px solid var(--border-soft); border-radius: 10px;
+  background: #fff; text-decoration: none; color: var(--text-dark); font-weight: 700; font-size: 1.05rem;
+  box-shadow: 0 3px 0 #c9c9c6; transition: transform 0.15s ease, box-shadow 0.15s ease, border-color 0.15s ease;
+}
+.mm-row:hover { transform: translateY(-1px); box-shadow: 0 4px 0 #b4b4b1; border-color: #c4c4c1; }
+.mm-row:active { transform: translateY(2px); box-shadow: 0 1px 0 #c9c9c6; }
+.mm-row:focus-visible { outline: 2px solid var(--navy-accent-hover); outline-offset: 2px; }
+.mm-row__name { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.mm-row__chev { font-size: 1.6rem; line-height: 1; color: #9a9a97; }
+.mm-empty { margin: 1.25rem 0; text-align: center; color: var(--text-muted); font-weight: 600; }
+
+/* avatars */
+.mm-avatar { display: inline-flex; align-items: center; justify-content: center; flex: none; border-radius: 50%; color: #fff; font-weight: 700; overflow: hidden; }
+.mm-avatar img { width: 100%; height: 100%; object-fit: cover; }
+.mm-avatar--sm { width: 32px; height: 32px; font-size: 0.78rem; }
+.mm-avatar--xl { width: 156px; height: 156px; font-size: 3rem; font-family: var(--font-display); letter-spacing: 0.02em; }
+
+/* detail */
+.mm-detail-top { display: flex; align-items: center; justify-content: space-between; gap: 0.75rem; margin-bottom: 0.75rem; }
+.mm-back { color: var(--navy-accent); font-weight: 700; font-size: 1.5rem; text-decoration: none; line-height: 1; }
+.mm-back:hover { color: var(--navy-accent-hover); }
+.mm-add-note {
+  padding: 0.5rem 1.2rem; border: 0; border-radius: 8px; background: var(--navy-accent); color: #fff; font-weight: 700; font-size: 0.9rem; cursor: pointer;
+}
+.mm-add-note:hover { background: var(--navy-accent-hover); }
+
+.mm-profile { padding: clamp(1.1rem, 2.4vw, 1.75rem); }
+.mm-profile__top { display: flex; align-items: center; gap: clamp(1rem, 3vw, 2rem); flex-wrap: wrap; margin-bottom: 1.75rem; }
+.mm-profile__name { margin: 0 0 0.5rem; font-size: clamp(1.5rem, 3vw, 2rem); font-weight: 800; line-height: 1.15; }
+.mm-profile__info p { margin: 0.15rem 0; font-size: 1.05rem; overflow-wrap: anywhere; }
+.mm-section-title { margin: 0 0 0.6rem; font-size: 1.25rem; font-weight: 700; }
+.mm-filters { display: flex; gap: 0.5rem; flex-wrap: wrap; margin-bottom: 0.9rem; }
+
+/* tables */
+.mm-table-scroll { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+.mm-table { width: 100%; border-collapse: collapse; text-align: center; font-size: 0.92rem; }
+.mm-table thead th { background: #3a73c4; color: #fff; font-weight: 700; padding: 0.55rem 0.5rem; white-space: nowrap; }
+.mm-table tbody tr:nth-child(even) { background: #e8f0fc; }
+.mm-table tbody td, .mm-table tbody th { padding: 0.6rem 0.5rem; font-weight: 600; }
+.mm-table--logs { min-width: 560px; }
+.mm-table--logs tbody td { white-space: nowrap; }
+.mm-num { font-weight: 700; }
+
+.mm-notes { list-style: none; margin: 0 0 0.25rem; padding: 0; display: flex; flex-direction: column; gap: 0.6rem; }
+.mm-notes li { background: #f3f6fb; border-left: 4px solid var(--navy-accent); border-radius: 6px; padding: 0.6rem 0.9rem; }
+.mm-notes time { font-size: 0.78rem; font-weight: 700; color: var(--text-muted); }
+.mm-notes p { margin: 0.15rem 0 0; white-space: pre-wrap; overflow-wrap: anywhere; }
+#notes-wrap { margin-top: 1.5rem; }
+
+/* aside */
+.mm-aside { padding: clamp(1rem, 2vw, 1.4rem); }
+.mm-aside__title { margin: 0 0 0.6rem; font-size: 1.35rem; font-weight: 700; }
+.mm-table--small { font-size: 0.8rem; margin-bottom: 1.25rem; }
+.mm-table--small thead th { padding: 0.4rem 0.3rem; }
+.mm-table--small tbody tr.mm-goal-row th, .mm-table--small tbody tr.mm-goal-row td { background: #fff; border-bottom: 1.5px solid #c8d6ee; }
+.mm-table--small tbody tr.mm-goal-row td { text-align: left; padding-left: 0.6rem; }
+.mm-meas-note { margin: -0.9rem 0 1.25rem; font-size: 0.75rem; color: var(--text-muted); }
+.mm-row .goal-badge { flex: none; }
+.mm-table--small tbody th, .mm-table--small tbody td { padding: 0.45rem 0.3rem; }
+.mm-aside__row { display: flex; align-items: center; justify-content: space-between; gap: 0.5rem; flex-wrap: wrap; margin-bottom: 0.6rem; }
+.mm-enrolled { font-size: 0.82rem; color: var(--text-dark); }
+.mm-table--sessions { font-size: 0.8rem; }
+.mm-table--sessions thead th { font-size: 0.88rem; }
+.mm-table--sessions thead th:first-child { width: 26%; }
+.mm-table--sessions tbody th { font-size: 0.88rem; font-weight: 700; border-right: 1.5px solid #3a73c4; }
+.mm-table--sessions tbody td { text-align: left; padding-left: 0.6rem; line-height: 1.3; font-weight: 500; }
+.mm-table--sessions tbody tr.is-done th::after { content: " \2713"; color: #2f8f5b; }
+.mm-attended { width: 9.5rem; margin-top: 1.1rem; border: 1px solid #c8d6ee; border-radius: 4px; overflow: hidden; text-align: center; }
+.mm-attended__head { background: #3a73c4; color: #fff; font-weight: 700; font-size: 0.82rem; padding: 0.3rem; }
+.mm-attended__val { padding: 0.35rem; font-weight: 700; background: #fff; }
+
+/* dialog */
+.mm-dialog { border: 0; border-radius: var(--radius-card); padding: 1.5rem; width: min(440px, 92vw); box-shadow: 0 20px 50px rgba(0, 0, 0, 0.3); }
+.mm-dialog::backdrop { background: rgba(10, 20, 35, 0.55); }
+.mm-dialog h2 { margin: 0 0 0.15rem; font-size: 1.25rem; }
+.mm-dialog__for { margin: 0 0 0.9rem; color: var(--text-muted); font-weight: 600; font-size: 0.9rem; }
+.mm-dialog textarea { width: 100%; padding: 0.7rem 0.9rem; border: 1.5px solid var(--border-soft); border-radius: 8px; font: inherit; resize: vertical; }
+.mm-dialog textarea:focus { outline: none; border-color: var(--navy-accent); box-shadow: 0 0 0 3px rgba(31, 78, 121, 0.18); }
+.mm-dialog__actions { display: flex; gap: 0.6rem; margin-top: 1rem; }
+.mm-btn { padding: 0.55rem 1.2rem; border-radius: var(--radius-pill); border: 1.5px solid var(--border-soft); background: #fff; font-weight: 700; cursor: pointer; font-size: 0.9rem; }
+.mm-btn--primary { background: var(--navy-deep); border-color: var(--navy-deep); color: #fff; }
+.mm-btn--primary:hover { background: var(--navy-accent-hover); }
+
+@media (max-width: 980px) {
+  .mm-list { max-height: none; }
+  .mm-attended { width: 100%; }
+}
+@media (max-width: 520px) {
+  .mm-toolbar__cat { margin-left: 0; width: 100%; }
+  .mm-toolbar__cat select { width: 100%; }
+  .mm-search { max-width: none; flex-basis: 100%; }
+  .mm-search-btn { flex: 1; }
+  .mm-avatar--xl { width: 112px; height: 112px; font-size: 2.2rem; }
+  .mm-profile__top { flex-direction: column; text-align: center; }
+}
+</style>
+</head>
+<body data-page="member-progress">
+
+<div class="app-shell">
+
+  <header class="app-topbar">
+    <a href="trainerdashboard.html" class="app-topbar__logo">GTG FITNESS</a>
+    <details class="settings-menu">
+      <summary class="app-topbar__settings" aria-label="Settings">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+          <circle cx="12" cy="12" r="3"></circle>
+          <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.6a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9c.14.32.44.55.8.66.34.11.65.36.8.66"></path>
+        </svg>
+      </summary>
+      <div class="settings-panel">
+        <div class="settings-panel__profile">
+          <img src="https://images.unsplash.com/photo-1594381898411-846e7d193883?auto=format&fit=crop&w=100&q=80" alt="" />
+          <div>
+            <p class="settings-panel__profile-name">Navarro, Irene Celeste</p>
+            <p class="settings-panel__profile-sub">Trainer</p>
+          </div>
+        </div>
+        <a href="edit-profile-trainer.html">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+            <path d="M12 20h9"></path>
+            <path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4Z"></path>
+          </svg>
+          Edit Profile
+        </a>
+        <div class="settings-panel__divider"></div>
+        <a href="index.html" class="settings-panel__logout">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+            <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
+            <path d="M16 17l5-5-5-5"></path>
+            <path d="M21 12H9"></path>
+          </svg>
+          Log Out
+        </a>
+      </div>
+    </details>
+  </header>
+
+  <nav class="app-sidebar" aria-label="Main navigation">
+    <ul class="app-nav">
+      <li><a href="trainerdashboard.html">Dashboard</a></li>
+      <li><a href="trainercalendar.html">Calendar</a></li>
+      <li class="is-active"><a href="trainerprogress.html" aria-current="page">Member Progress</a></li>
+      <li><a href="traineravailability.html">Trainer Availability</a></li>
+    </ul>
+    <div class="app-sidebar__logout">
+      <a href="index.html" aria-label="Log out">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+          <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
+          <path d="M16 17l5-5-5-5"></path>
+          <path d="M21 12H9"></path>
+        </svg>
+      </a>
+    </div>
+  </nav>
+
+  <main class="app-main" id="main">
+
+    <!-- ===== VIEW 1: member list ===== -->
+    <section id="view-list" aria-labelledby="mm-title">
+      <h1 class="page-title mm-title" id="mm-title">Member&rsquo;s Management</h1>
+
+      <form class="mm-toolbar" id="mm-form" role="search" autocomplete="off">
+        <div class="mm-search">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="11" cy="11" r="7"></circle><path d="M21 21l-4.3-4.3"></path></svg>
+          <input type="search" id="mm-search" placeholder="Search members" aria-label="Search members" />
+        </div>
+        <button type="submit" class="mm-search-btn">Search</button>
+        <label class="mm-select mm-toolbar__cat">
+          <span class="visually-hidden">Category</span>
+          <select id="mm-cat"></select>
+        </label>
+      </form>
+
+      <div class="card mm-list-card">
+        <ul class="mm-list" id="mm-list"></ul>
+        <p class="mm-empty" id="mm-empty" hidden>No members match your search.</p>
+      </div>
+    </section>
+
+    <!-- ===== VIEW 2: one member ===== -->
+    <section id="view-detail" hidden>
+      <div class="mm-detail-top">
+        <a href="#list" class="mm-back" id="mm-back"><span aria-hidden="true">&lsaquo;</span> Back</a>
+        <button type="button" class="mm-add-note" id="mm-add-note">Add Note</button>
+      </div>
+
+      <article class="card mm-profile" aria-labelledby="mm-name">
+        <div class="mm-profile__top">
+          <div class="mm-avatar mm-avatar--xl" id="mm-photo" aria-hidden="true"></div>
+          <div class="mm-profile__info">
+            <h1 class="mm-profile__name" id="mm-name"></h1>
+            <p><strong>Age:</strong> <span id="mm-age"></span></p>
+            <p><strong>Gender:</strong> <span id="mm-gender"></span></p>
+            <p><strong>Contact:</strong> <span id="mm-contact"></span></p>
+            <p><strong>Email:</strong> <span id="mm-email"></span></p>
+          </div>
+        </div>
+
+        <h2 class="mm-section-title">Attendance Logs</h2>
+        <div class="mm-filters">
+          <label class="mm-select"><span class="visually-hidden">Class</span><select id="log-class"></select></label>
+          <label class="mm-select"><span class="visually-hidden">Type</span>
+            <select id="log-type">
+              <option value="all">All Type</option>
+              <option value="Group">Group</option>
+              <option value="Solo">Solo</option>
+            </select>
+          </label>
+        </div>
+
+        <div class="mm-table-scroll">
+          <table class="mm-table mm-table--logs">
+            <thead><tr><th scope="col"><span class="visually-hidden">Session</span></th><th scope="col">Class</th><th scope="col">Type</th><th scope="col">Date</th><th scope="col">Time-in</th><th scope="col">Time-out</th></tr></thead>
+            <tbody id="log-body"></tbody>
+          </table>
+        </div>
+        <p class="mm-empty" id="log-empty" hidden>No attendance logged yet.</p>
+
+        <div id="notes-wrap" hidden>
+          <h2 class="mm-section-title">Trainer Notes</h2>
+          <ul class="mm-notes" id="notes-list"></ul>
+        </div>
+      </article>
+    </section>
+  </main>
+
+  <aside class="app-aside mm-aside" id="mm-aside" aria-label="Member measurements and sessions" hidden>
+    <h2 class="mm-aside__title">Measurements</h2>
+    <table class="mm-table mm-table--small">
+      <thead><tr><th scope="col">Category</th><th scope="col">Current</th><th scope="col">Goal</th><th scope="col">Change</th></tr></thead>
+      <tbody id="meas-body"></tbody>
+    </table>
+    <p class="mm-meas-note" id="meas-note"></p>
+
+    <div class="mm-aside__row">
+      <label class="mm-select mm-select--sm"><span class="visually-hidden">Class</span><select id="aside-class"></select></label>
+      <em class="mm-enrolled" id="mm-enrolled"></em>
+    </div>
+
+    <table class="mm-table mm-table--sessions">
+      <thead><tr><th scope="col">Session</th><th scope="col">Focus/ Goal</th></tr></thead>
+      <tbody id="focus-body"></tbody>
+    </table>
+
+    <div class="mm-attended">
+      <div class="mm-attended__head">Session Attended</div>
+      <div class="mm-attended__val" id="mm-attended"></div>
+    </div>
+  </aside>
+
+</div>
+
+<!-- Add note -->
+<dialog class="mm-dialog" id="note-dialog" aria-labelledby="note-title">
+  <form method="dialog" id="note-form">
+    <h2 id="note-title">Add note</h2>
+    <p class="mm-dialog__for" id="note-for"></p>
+    <label class="visually-hidden" for="note-text">Note</label>
+    <textarea id="note-text" rows="5" maxlength="500" placeholder="Progress, reminders, goals&hellip;" required></textarea>
+    <div class="mm-dialog__actions">
+      <button type="submit" value="save" class="mm-btn mm-btn--primary">Save note</button>
+      <button type="button" class="mm-btn" id="note-cancel">Cancel</button>
+    </div>
+  </form>
+</dialog>
+
+<script src="shell.js"></script>
+<script src="trainer-availability.js?v=2"></script>
+<script src="measurement.js"></script>
+<script src="pwa.js"></script>
+<script>
+(function () {
+  'use strict';
+
+  var AV = window.GTG_AVAILABILITY || {};
+  var COACH = 'Coach Irene';
+  var SPECS = ((AV.specializations && AV.specializations[COACH]) || ['yoga', 'zumba', 'taekwondo', 'gym']).slice();
+  var LABEL = AV.classLabels || { yoga: 'Yoga', zumba: 'Zumba', taekwondo: 'Taekwondo', gym: 'Gym', boxing: 'Boxing', muaythai: 'Muay Thai' };
+  var PACKAGE = 10;   // sessions per enrolment
+
+  function $(id) { return document.getElementById(id); }
+  function esc(t) { var e = document.createElement('span'); e.textContent = t == null ? '' : t; return e.innerHTML; }
+  function store(key, fb) { try { return JSON.parse(localStorage.getItem(key)) || fb; } catch (e) { return fb; } }
+  function save(key, v) { try { localStorage.setItem(key, JSON.stringify(v)); } catch (e) {} }
+  function toast(msg) { if (window.GTG_toast) window.GTG_toast(msg); }
+
+  /* ---------- SAMPLE DATA (replace with your backend) ---------- */
+  var FOCUS = {
+    taekwondo: ['Basic stance, posture, and balance', 'Fundamental kicks (front, side)', 'Basic punches and blocks', 'Coordination drills and movement flow', 'Combination techniques (kick + punch)', 'Sparring fundamentals and distance control', 'Power generation and speed', 'Form practice (Taegeuk 1 or equivalent)', 'Controlled sparring and strategy', 'Evaluation and belt-level readiness'],
+    yoga:      ['Breathing basics and gentle warm-up', 'Sun salutation flow', 'Standing poses and alignment', 'Balance poses and core focus', 'Hip openers and flexibility', 'Backbends and spine mobility', 'Arm balances introduction', 'Longer holds and endurance', 'Full flow sequencing', 'Evaluation and personal practice plan'],
+    zumba:     ['Basic steps and rhythm', 'Salsa and merengue patterns', 'Cardio endurance blocks', 'Reggaeton footwork', 'Cumbia and coordination', 'Core-focused routines', 'Interval dance conditioning', 'Choreography memorization', 'Full-length routine run-through', 'Evaluation and performance session'],
+    gym:       ['Orientation and safe machine use', 'Form basics: squat and hinge', 'Upper body push and pull', 'Core and stability work', 'Progressive overload basics', 'Lower body strength', 'Conditioning circuits', 'Compound lift technique', 'Program self-management', 'Evaluation and next-phase plan']
+  };
+
+  var TIMES = [['7:15 AM', '8:05 AM'], ['9:30 AM', '10:20 AM'], ['11:10 AM', '12:00 PM'], ['1:45 PM', '2:35 PM'], ['3:20 PM', '4:15 PM'], ['6:10 PM', '7:00 PM']];
+  function pad(n) { return n < 10 ? '0' + n : '' + n; }
+  function fmt(d) { return pad(d.getMonth() + 1) + '/' + pad(d.getDate()) + '/' + d.getFullYear(); }
+
+  // auto: { class: attendedCount } -> generates a believable log, newest sessions in the last weeks
+  function autoLogs(auto, seed) {
+    var out = [], base = new Date(2026, 10, 14 - (seed % 4));
+    Object.keys(auto).forEach(function (cls, ci) {
+      for (var k = 0; k < auto[cls]; k++) {
+        var d = new Date(base.getTime() - ((auto[cls] - 1 - k) * 7 + ci * 2 + (k % 2)) * 86400000);
+        var t = TIMES[(seed + k + ci) % TIMES.length];
+        out.push({ cls: cls, type: (k + seed) % 3 === 0 ? 'Solo' : 'Group', date: d, tin: t[0], tout: t[1] });
+      }
+    });
+    return out;
+  }
+  function L(cls, type, y, m, d, tin, tout) { return { cls: cls, type: type, date: new Date(y, m - 1, d), tin: tin, tout: tout }; }
+
+  var MEMBERS = [
+    { id: 'guevarra-lienna', goal: 'Cutting', last: 'Guevarra', first: 'Lienna', age: 22, gender: 'Female', contact: '0917 555 0142', email: 'lienna.guevarra@email.com',
+      classes: ['yoga'], logs: autoLogs({ yoga: 5 }, 1),
+      meas: [['Height', "5'4", '—', '—'], ['Weight', '54kg', '52kg', '-1kg'], ['BMI', '20.8', '20.0', '-0.4'], ['Muscle Mass', '40kg', '42kg', '+1kg']] },
+    { id: 'canlas-john-theo', goal: 'Bulking', last: 'Canlas', first: 'John Theo', age: 19, gender: 'Male', contact: '0928 410 7731', email: 'johntheo.canlas@email.com',
+      classes: ['taekwondo'], logs: autoLogs({ taekwondo: 7 }, 2),
+      meas: [['Height', "5'9", '—', '—'], ['Weight', '68kg', '70kg', '+2kg'], ['BMI', '22.1', '22.7', '+0.6'], ['Muscle Mass', '52kg', '54kg', '+2kg']] },
+    { id: 'villanueva-stella-ashley', goal: 'Cutting', last: 'Villanueva', first: 'Stella Ashley', age: 24, gender: 'Female', contact: '0945 118 2096', email: 'stella.villanueva@email.com',
+      classes: ['zumba'], logs: autoLogs({ zumba: 4 }, 3),
+      meas: [['Height', "5'5", '—', '—'], ['Weight', '60kg', '57kg', '-2kg'], ['BMI', '22.0', '21.0', '-0.7'], ['Muscle Mass', '41kg', '43kg', '+1kg']] },
+    { id: 'hombre-riza-marie', goal: 'Bulking', last: 'Hombre', first: 'Riza Marie', age: 21, gender: 'Female', contact: '1234567890', email: 'Tobreeron@gmail.com',
+      classes: ['taekwondo', 'yoga'],
+      logs: [L('taekwondo', 'Group', 2026, 4, 25, '7:15 AM', '8:05 AM'), L('yoga', 'Solo', 2026, 4, 17, '9:30 AM', '10:20 AM'),
+             L('yoga', 'Group', 2026, 4, 6, '11:10 AM', '12:00 PM'), L('taekwondo', 'Group', 2026, 3, 29, '1:45 PM', '2:35 PM'),
+             L('yoga', null, 2026, 3, 18, '3:20 PM', '4:15 PM'), L('taekwondo', 'Solo', 2026, 3, 5, '6:10 PM', '7:00 PM')],
+      meas: [['Height', "6'3", '—', '—'], ['Weight', '52kg', '55kg', '+2kg'], ['BMI', '20.3', '21.0', '+0.8'], ['Muscle Mass', '44kg', '46kg', '+2kg']] },
+    { id: 'panginitan-marcus', goal: 'Bulking', last: 'Panginitan', first: 'Marcus', age: 26, gender: 'Male', contact: '0917 802 3350', email: 'marcus.panginitan@email.com',
+      classes: ['gym'], logs: autoLogs({ gym: 8 }, 5),
+      meas: [['Height', "5'10", '—', '—'], ['Weight', '74kg', '78kg', '+3kg'], ['BMI', '23.6', '24.9', '+1.0'], ['Muscle Mass', '58kg', '62kg', '+3kg']] },
+    { id: 'morales-adrian', goal: 'Bulking', last: 'Morales', first: 'Adrian', age: 20, gender: 'Male', contact: '0966 270 9184', email: 'adrian.morales@email.com',
+      classes: ['taekwondo', 'gym'], logs: autoLogs({ taekwondo: 6, gym: 2 }, 6),
+      meas: [['Height', "5'8", '—', '—'], ['Weight', '63kg', '66kg', '+2kg'], ['BMI', '21.4', '22.4', '+0.7'], ['Muscle Mass', '49kg', '52kg', '+2kg']] },
+    { id: 'fernandez-sofia-isabel', goal: 'Maintain', last: 'Fernandez', first: 'Sofia Isabel', age: 23, gender: 'Female', contact: '0935 664 1207', email: 'sofia.fernandez@email.com',
+      classes: ['yoga', 'zumba'], logs: autoLogs({ yoga: 3, zumba: 2 }, 7),
+      meas: [['Height', "5'3", '—', '—'], ['Weight', '51kg', '51kg', '0kg'], ['BMI', '19.9', '19.9', '0.0'], ['Muscle Mass', '38kg', '40kg', '+1kg']] }
+    // Fills in her own measurements on memberdashboard.html (nothing is pre-filled here)
+    ,{ id: 'madriaga-rafaela', last: 'Madriaga', first: 'Rafaela', age: 17, gender: 'Female', contact: '\u2014', email: 'member1@gmail.com',
+      classes: ['yoga', 'zumba'], logs: autoLogs({ yoga: 2, zumba: 1 }, 8), meas: null }
+  ].filter(function (m) {            // a trainer only sees members in classes they teach
+    m.classes = m.classes.filter(function (c) { return SPECS.indexOf(c) !== -1; });
+    return m.classes.length > 0;
+  });
+
+  // number each member's sessions per class (oldest = 1), then show newest first
+  MEMBERS.forEach(function (m) {
+    m.logs.sort(function (a, b) { return a.date - b.date; });
+    var count = {};
+    m.logs.forEach(function (l) { count[l.cls] = (count[l.cls] || 0) + 1; l.n = count[l.cls]; });
+    m.logs.reverse();
+    m.attended = count;
+  });
+
+  /* ---------- Avatars ---------- */
+  var COLORS = ['#c4553d', '#3962a7', '#2f8f5b', '#8a5cc2', '#c98a14', '#2a8d9c', '#b83b6e'];
+  function avatar(m, size) {
+    var h = 0; for (var i = 0; i < m.id.length; i++) h = (h * 31 + m.id.charCodeAt(i)) >>> 0;
+    var ini = (m.first.charAt(0) + m.last.charAt(0)).toUpperCase();
+    return '<span class="mm-avatar mm-avatar--' + size + '" style="background:' + COLORS[h % COLORS.length] + '" aria-hidden="true">' + (m.photo ? '<img src="' + esc(m.photo) + '" alt="" />' : esc(ini)) + '</span>';
+  }
+
+  /* ---------- Goal + measurements (member's own entries win over the sample data) ---------- */
+  var GM = window.GTG_MEASUREMENTS;
+  function goalOf(m) {
+    var d = GM && GM.get(m.id);
+    return (d && d.goal) || m.goal || '';
+  }
+  function goalBadge(goal) {
+    return goal ? '<span class="goal-badge goal-badge--' + esc(goal.toLowerCase()) + '">' + esc(goal) + '</span>'
+                : '<span class="goal-badge goal-badge--none">Not set</span>';
+  }
+  function measRowsOf(m) {
+    var d = GM && GM.get(m.id);
+    return d ? GM.rows(d) : (m.meas || []);
+  }
+
+  /* ---------- List view ---------- */
+  var listEl = $('mm-list'), searchEl = $('mm-search'), catEl = $('mm-cat');
+  catEl.innerHTML = '<option value="all">All Categories</option>' +
+    SPECS.map(function (c) { return '<option value="' + c + '">' + esc(LABEL[c] || c) + '</option>'; }).join('');
+
+  function renderList() {
+    var q = searchEl.value.trim().toLowerCase(), cat = catEl.value;
+    var rows = MEMBERS.filter(function (m) {
+      return (cat === 'all' || m.classes.indexOf(cat) !== -1) &&
+        (!q || (m.last + ', ' + m.first + ' ' + m.first + ' ' + m.last).toLowerCase().indexOf(q) !== -1);
+    });
+    listEl.innerHTML = rows.map(function (m) {
+      return '<li><a class="mm-row" href="#member/' + m.id + '">' + avatar(m, 'sm') +
+        '<span class="mm-row__name">' + esc(m.last + ', ' + m.first) + '</span>' + goalBadge(goalOf(m)) +
+        '<span class="mm-row__chev" aria-hidden="true">&rsaquo;</span></a></li>';
+    }).join('');
+    $('mm-empty').hidden = rows.length > 0;
+  }
+  $('mm-form').addEventListener('submit', function (e) { e.preventDefault(); renderList(); });
+  searchEl.addEventListener('input', renderList);
+  catEl.addEventListener('change', renderList);
+
+  /* ---------- Detail view ---------- */
+  var current = null;
+  var logClass = $('log-class'), logType = $('log-type'), asideClass = $('aside-class');
+
+  function ordinal(n) { return n + (n === 1 ? 'st' : n === 2 ? 'nd' : n === 3 ? 'rd' : 'th'); }
+
+  function renderLogs() {
+    var m = current;
+    var rows = m.logs.filter(function (l) {
+      return (logClass.value === 'all' || l.cls === logClass.value) &&
+        (logType.value === 'all' || l.type === logType.value);
+    });
+    $('log-body').innerHTML = rows.map(function (l) {
+      return '<tr><td class="mm-num">' + l.n + '</td><td>' + esc(LABEL[l.cls] || l.cls) + '</td><td>' + esc(l.type || '--') +
+        '</td><td>' + fmt(l.date) + '</td><td>' + esc(l.tin) + '</td><td>' + esc(l.tout) + '</td></tr>';
+    }).join('');
+    $('log-empty').hidden = rows.length > 0;
+    $('log-body').closest('.mm-table-scroll').hidden = rows.length === 0;
+  }
+
+  function renderAside() {
+    var m = current, cls = asideClass.value;
+    var done = m.attended[cls] || 0;
+    $('mm-enrolled').textContent = 'Enrolled ' + PACKAGE + ' Sessions';
+    $('focus-body').innerHTML = (FOCUS[cls] || []).map(function (f, i) {
+      return '<tr class="' + (i < done ? 'is-done' : '') + '"><th scope="row">' + ordinal(i + 1) + (i < done ? '<span class="visually-hidden"> (attended)</span>' : '') + '</th><td>' + esc(f) + '</td></tr>';
+    }).join('');
+    $('mm-attended').textContent = done + '/' + PACKAGE;
+  }
+
+  function renderMeasurements() {
+    var m = current, d = GM && GM.get(m.id), rows = measRowsOf(m);
+    var html = '<tr class="mm-goal-row"><th scope="row">Goal</th><td colspan="3">' + goalBadge(goalOf(m)) + '</td></tr>';
+    html += rows.length ? rows.map(function (r) {
+      return '<tr><th scope="row">' + esc(r[0]) + '</th><td>' + esc(r[1]) + '</td><td>' + esc(r[2]) + '</td><td>' + esc(r[3]) + '</td></tr>';
+    }).join('') : '<tr><td colspan="4">No measurements sent yet.</td></tr>';
+    $('meas-body').innerHTML = html;
+    $('meas-note').textContent = d ? 'Sent by the member on ' + new Date(d.updated).toLocaleDateString('en-PH', { year: 'numeric', month: 'short', day: 'numeric' }) + '. Change = since their previous update.' : '';
+  }
+
+  function renderNotes() {
+    var notes = (store('gtg_member_notes', {})[current.id]) || [];
+    $('notes-wrap').hidden = notes.length === 0;
+    $('notes-list').innerHTML = notes.slice().reverse().map(function (n) {
+      return '<li><time>' + esc(n.date) + '</time><p>' + esc(n.text) + '</p></li>';
+    }).join('');
+  }
+
+  function showDetail(m) {
+    current = m;
+    document.title = m.last + ', ' + m.first + ' · Member Progress · GTG Fitness Trainer';
+    $('mm-name').textContent = m.last + ', ' + m.first;
+    $('mm-age').textContent = m.age;
+    $('mm-gender').textContent = m.gender;
+    $('mm-contact').textContent = m.contact;
+    $('mm-email').textContent = m.email;
+    $('mm-photo').outerHTML = avatar(m, 'xl').replace('<span ', '<span id="mm-photo" ');
+
+    var opts = m.classes.map(function (c) { return '<option value="' + c + '">' + esc(LABEL[c] || c) + '</option>'; }).join('');
+    logClass.innerHTML = '<option value="all">All Classes</option>' + opts;
+    logType.value = 'all';
+    asideClass.innerHTML = opts;
+
+    renderMeasurements();
+
+    renderLogs(); renderAside(); renderNotes();
+  }
+
+  logClass.addEventListener('change', renderLogs);
+  logType.addEventListener('change', renderLogs);
+  asideClass.addEventListener('change', renderAside);
+
+  /* ---------- Notes ---------- */
+  var dlg = $('note-dialog');
+  $('mm-add-note').addEventListener('click', function () {
+    $('note-for').textContent = current.last + ', ' + current.first;
+    $('note-text').value = '';
+    if (dlg.showModal) dlg.showModal(); else dlg.setAttribute('open', '');
+    $('note-text').focus();
+  });
+  $('note-cancel').addEventListener('click', function () { dlg.close(); });
+  $('note-form').addEventListener('submit', function () {
+    var text = $('note-text').value.trim();
+    if (!text) return;
+    var all = store('gtg_member_notes', {});
+    (all[current.id] = all[current.id] || []).push({ text: text, date: new Date().toLocaleDateString('en-PH', { year: 'numeric', month: 'short', day: 'numeric' }) });
+    save('gtg_member_notes', all);
+    renderNotes();
+    toast('Note added');
+  });
+
+  /* ---------- Routing: #list or #member/<id> ---------- */
+  var shell = document.querySelector('.app-shell');
+  function route() {
+    var m = /^#member\/(.+)$/.exec(location.hash);
+    var member = m && MEMBERS.filter(function (x) { return x.id === m[1]; })[0];
+    $('view-list').hidden = !!member;
+    $('view-detail').hidden = !member;
+    $('mm-aside').hidden = !member;
+    shell.classList.toggle('app-shell--with-aside', !!member);
+    if (member) showDetail(member);
+    else { document.title = 'Member Progress · GTG Fitness Trainer'; renderList(); }
+    window.scrollTo(0, 0);
+    $('main').scrollTop = 0;
+  }
+  window.addEventListener('storage', function (e) {
+    if (GM && e.key === GM.KEY) { if (current && !$('view-detail').hidden) renderMeasurements(); else renderList(); }
+  });
+  window.addEventListener('hashchange', route);
+  route();
+})();
+</script>
+</body>
+</html>
