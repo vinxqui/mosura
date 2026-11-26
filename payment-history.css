@@ -1,0 +1,238 @@
+/* =========================================================
+   payment-history.css — "Payment History" card on the
+   member dashboard. Load after app.css / responsive.css.
+   ========================================================= */
+
+.payment-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.payment-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 12px 14px;
+  background: #f3f3f1;
+  border: 1px solid #e2e2df;
+  border-radius: 10px;
+}
+
+.payment-item__info { min-width: 0; }
+
+.payment-item__class {
+  margin: 0;
+  font-weight: 700;
+  font-size: 0.95rem;
+  color: #111;
+}
+
+.payment-item__meta {
+  margin: 2px 0 0;
+  font-size: 0.78rem;
+  color: #6b6b6b;
+  overflow-wrap: anywhere;
+}
+
+.payment-item__side {
+  flex: 0 0 auto;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 4px;
+}
+
+.payment-item__amount {
+  margin: 0;
+  font-weight: 700;
+  font-size: 0.95rem;
+  color: #163050;
+}
+
+.status-pill {
+  display: inline-block;
+  padding: 2px 10px;
+  border-radius: 999px;
+  font-size: 0.72rem;
+  font-weight: 700;
+  line-height: 1.5;
+}
+
+.status-pill--paid,
+.status-pill--verified { background: #d9f2e0; color: #1d7a3a; }
+.status-pill--pending { background: #fdf0cf; color: #9a6a00; }
+.status-pill--failed,
+.status-pill--rejected { background: #fbdcdc; color: #b3261e; }
+
+/* Very narrow cards: stack amount under the class name */
+@media (max-width: 420px) {
+  .payment-item { flex-wrap: wrap; }
+  .payment-item__side {
+    flex-direction: row;
+    align-items: center;
+    gap: 10px;
+  }
+}
+
+/* Sessions-taken row inside each payment (was unstyled, so it
+   squeezed in beside the amount). Full-width row under the info. */
+.payment-item { flex-wrap: wrap; }
+
+.payment-item__sessions {
+  flex: 1 0 100%;
+  margin-top: 4px;
+}
+
+.sessions-label {
+  display: flex;
+  justify-content: space-between;
+  gap: 8px;
+  font-size: 0.78rem;
+  color: #6b6b6b;
+  margin-bottom: 5px;
+}
+
+.sessions-label strong { color: #163050; }
+
+.sessions-bar {
+  height: 6px;
+  border-radius: 999px;--sidebar-width: clamp(150px, 14vw, 240px);
+  background: #dcdcd8;
+  overflow: hidden;
+}
+
+.sessions-bar span {
+  display: block;
+  height: 100%;
+  border-radius: 999px;
+  background: #163050;
+}
+
+.sessions-note {
+  margin: 0;
+  font-size: 0.78rem;
+  color: #6b6b6b;
+}
+
+.payment-empty {
+  padding: 12px 14px;
+  font-size: 0.9rem;
+  color: #6b6b6b;
+}
+
+.payment-summary {
+  margin: 0 0 10px;
+  font-size: 0.88rem;
+  color: #4a4a4a;
+}
+
+.payment-item__info { flex: 1 1 0; }
+
+/* ---------- Payment page: "Payment Status" card ---------- */
+.status-summary {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 12px 14px;
+  margin-bottom: 14px;
+  background: #f3f3f1;
+  border: 1px solid #e2e2df;
+  border-radius: 10px;
+}
+.status-summary div { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+.status-summary strong { font-size: 0.95rem; color: #111; }
+.status-summary span:not(.status-pill) { font-size: 0.8rem; color: #6b6b6b; }
+
+.status-msg {
+  margin: 0 0 1.1rem;
+  padding: 0.7rem 0.9rem;
+  border-left: 4px solid #163050;
+  background: #eef3fb;
+  border-radius: 6px;
+  font-size: 0.86rem;
+  line-height: 1.45;
+}
+
+.status-actions { display: flex; flex-wrap: wrap; gap: 0.6rem; }
+.status-actions .btn { text-decoration: none; text-align: center; }
+
+/* ---------- Owner: payment verification page ---------- */
+.owner-actions { display: flex; flex-wrap: wrap; gap: 6px; }
+.owner-btn {
+  padding: 5px 12px;
+  border: 0;
+  border-radius: 8px;
+  font: inherit;
+  font-size: 0.8rem;
+  font-weight: 700;
+  cursor: pointer;
+  background: #163050;
+  color: #fff;
+}
+.owner-btn:hover { filter: brightness(1.15); }
+.owner-btn--ghost { background: #fff; color: #b3261e; border: 1px solid #e3b5b1; }
+.owner-btn--ghost:hover { background: #fbdcdc; filter: none; }
+.data-table .status-pill { white-space: nowrap; }
+
+.owner-stats { display: flex; flex-wrap: wrap; gap: 12px; margin-bottom: 20px; }
+.owner-stat { flex: 1 1 160px; padding: 14px 18px; background: #fff; border-radius: 14px; }
+.owner-stat__label { margin: 0; font-size: 0.85rem; color: #6b6b6b; font-weight: 600; }
+.owner-stat__value { margin: 4px 0 0; font-size: 1.9rem; font-weight: 700; color: #163050; }
+.status-item + .status-item { margin-top: 18px; padding-top: 18px; border-top: 1px solid #e2e2df; }
+
+/* Payment Status panel header: title left, buttons top right */
+.status-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin: 0 0 1rem;
+  padding-bottom: 0.7rem;
+  border-bottom: 1px solid var(--border-soft);
+}
+.status-head h2 { margin: 0; font-size: 1.15rem; font-weight: 700; }
+.status-head .status-actions { gap: 8px; }
+.status-head .status-actions .btn { padding: 8px 16px; font-size: 0.82rem; }
+
+.status-sessions { margin-top: 14px; padding-top: 14px; border-top: 1px solid #e2e2df; }
+.status-sessions__foot { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 10px; margin-top: 8px; font-size: 0.85rem; color: #4a4a4a; }
+.status-sessions__btn { padding: 8px 16px; font-size: 0.82rem; text-decoration: none; text-align: center; }
+.payment-item__sessions .status-sessions { margin-top: 0; padding-top: 0; border-top: 0; }
+
+/* Payment Status: collapsed card + Details button */
+.status-item .status-summary { margin-bottom: 8px; }
+.status-toggle {
+  display: block;
+  width: 100%;
+  padding: 9px 14px;
+  border: 1px solid #163050;
+  border-radius: 999px;
+  background: #fff;
+  color: #163050;
+  font: inherit;
+  font-size: 0.85rem;
+  font-weight: 700;
+  cursor: pointer;
+}
+.status-toggle:hover { background: #163050; color: #fff; }
+.status-toggle::after { content: " \25BE"; }
+.status-toggle[aria-expanded="true"]::after { content: " \25B4"; }
+.status-details { margin-top: 14px; }
+.status-details[hidden] { display: none; }
+/* Month / Year / Category filters */
+.pay-filters { display: flex; flex-wrap: wrap; gap: 8px; margin: 0 0 1rem; }
+.pay-filters .select-native { flex: 1 1 110px; width: auto; min-width: 0; padding: 0.5rem 2rem 0.55rem 0.8rem; font-size: 0.85rem; background-color: #fff; background-position: right 0.55rem center; background-size: 15px; }
+.table-filters { margin-bottom: 0.9rem; display: flex; flex-wrap: wrap; gap: 8px; }
+.table-filters .select-native { width: auto; min-width: 9rem; padding: 0.5rem 2rem 0.55rem 0.8rem; font-size: 0.88rem; background-color: #fff; }
+
+/* Payment channel line on each payment */
+.payment-item__channel { flex-wrap: wrap; display: flex; align-items: center; gap: 6px; margin: 3px 0 0; font-size: 0.78rem; color: #6b6b6b; }
+.payment-item__channel strong { color: #163050; background: #e6edf5; padding: 1px 8px; border-radius: 999px; font-weight: 700; }
+.payment-item__channel span { white-space: nowrap; }

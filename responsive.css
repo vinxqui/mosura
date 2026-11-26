@@ -1,0 +1,27 @@
+/* =========================================================
+   responsive.css — member dashboard CARD layout only.
+   The page shell (top bar / sidebar / aside) now lives in
+   app.css so every page shares it.
+   ========================================================= */
+
+/* ---------- Cards flow into as many columns as fit ---------- */
+.dashboard-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+  gap: 20px;
+}
+.dashboard-grid .stack { min-width: 0; }
+.card { min-width: 0; }
+.select-native,
+.card select { max-width: 100%; }
+.upcoming-coach { flex-wrap: wrap; }
+
+/* Aside content should never overflow its panel */
+.app-aside * { min-width: 0; }
+.big-calendar { width: 100%; }
+.aside-heading { flex-wrap: wrap; gap: 8px; }
+
+@media (max-width: 720px) {
+  .page-title { font-size: 1.6rem; }
+  .dashboard-grid { grid-template-columns: minmax(0, 1fr); }
+}

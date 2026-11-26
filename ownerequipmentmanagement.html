@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <script src="supabase-config.js"></script>
+  <script src="gtg-db.js"></script>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Equipment Management · GTG Fitness</title>
+<meta name="description" content="GTG Fitness owner area — manage gym equipment, quantities and condition." />
+
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Anton&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+<link href="https://fonts.googleapis.com/css2?family=BBH+Bogle&display=swap" rel="stylesheet" />
+
+<!-- app.css first, page CSS second so the page rules win -->
+<link rel="stylesheet" href="app.css?v=30" />
+<link rel="stylesheet" href="ownerpages.css" />
+<link rel="stylesheet" href="adminownerequipmentmanagement.css" />
+</head>
+<body>
+
+<div class="app-shell">
+
+  <header class="app-topbar">
+    <a href="ownerdashboard.html" class="app-topbar__logo">GTG FITNESS</a>
+    <details class="settings-menu">
+      <summary class="app-topbar__settings" aria-label="Settings">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+          <circle cx="12" cy="12" r="3"></circle>
+          <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.6a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9c.14.32.44.55.8.66.34.11.65.36.8.66"></path>
+        </svg>
+      </summary>
+      <div class="settings-panel">
+        <div class="settings-panel__profile">
+          <img src="https://images.unsplash.com/photo-1531123897727-8f129e1688ce?auto=format&fit=crop&w=100&q=80" alt="" />
+          <div>
+            <p class="settings-panel__profile-name">Santos, Rue</p>
+            <p class="settings-panel__profile-sub">Admin</p>
+          </div>
+        </div>
+        <a href="edit-profile-owner.html">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+            <path d="M12 20h9"></path>
+            <path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4Z"></path>
+          </svg>
+          Edit Profile
+        </a>
+        <div class="settings-panel__divider"></div>
+        <a href="index.html" class="settings-panel__logout">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+            <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
+            <path d="M16 17l5-5-5-5"></path>
+            <path d="M21 12H9"></path>
+          </svg>
+          Log Out
+        </a>
+      </div>
+    </details>
+  </header>
+
+  <nav class="app-sidebar" aria-label="Main navigation">
+    <ul class="app-nav">
+      <li><a href="ownerdashboard.html">Dashboard</a></li>
+      <li><a href="ownercalendar.html">Calendar</a></li>
+      <li><a href="ownermembermanagement.html">Members Management</a></li>
+      <li><a href="ownerclassmanagement.html">Class Management</a></li>
+      <li><a href="ownertrainermanagement.html">Trainer Management</a></li>
+      <li><a href="owneremployeemanagement.html">Employee Management</a></li>
+      <li><a href="ownerfeedback.html">Feedback Summary</a></li>
+      <li><a href="ownerperformanceanalytics.html">Performance Analytics</a></li>
+      <li><a href="ownerpaymentmanagement.html"> Payment Management </a></li>
+      <li class="is-active"><a href="ownerequipmentmanagement.html" aria-current="page">Equipment Management</a></li>
+    </ul>
+  </nav>
+
+  <main class="app-main">
+
+    <!-- Shown while the page is locked (and until the role check finishes). Contains no real data. -->
+    <div class="op-skeleton" id="op-skeleton" aria-hidden="true">
+      <div class="op-skel op-skel--title"></div>
+      <div class="op-skel-row"><div class="op-skel"></div><div class="op-skel"></div><div class="op-skel"></div><div class="op-skel"></div></div>
+      <div class="op-skel op-skel--block"></div>
+    </div>
+
+    <div class="op" id="op-content" hidden>
+
+      <div class="op-header">
+        <div>
+          <h1 class="page-title">Equipment Management</h1>
+          <p class="op-sub">Monitor the gym's equipment and track its condition.</p>
+        </div>
+        <div class="op-tools">
+          <button type="button" class="op-btn op-btn--primary" id="eq-add">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" aria-hidden="true"><path d="M12 5v14M5 12h14"></path></svg>
+            Add equipment
+          </button>
+        </div>
+      </div>
+
+      <div class="op-stats">
+        <div class="op-card op-stat"><p class="op-stat__label">Equipment types</p><p class="op-stat__value" id="kpi-types">0</p></div>
+        <div class="op-card op-stat"><p class="op-stat__label">Total units</p><p class="op-stat__value" id="kpi-units">0</p></div>
+        <div class="op-card op-stat"><p class="op-stat__label">Needs repair</p><p class="op-stat__value" id="kpi-repair">0</p></div>
+        <div class="op-card op-stat"><p class="op-stat__label">Out of service</p><p class="op-stat__value" id="kpi-out">0</p></div>
+      </div>
+
+      <div class="eq-toolbar">
+        <label for="eq-search" class="visually-hidden">Search equipment</label>
+        <input type="search" id="eq-search" class="op-search" placeholder="Search equipment" autocomplete="off" />
+        <label for="eq-filter" class="visually-hidden">Filter by category</label>
+        <select id="eq-filter" class="op-select"><option value="all">All categories</option></select>
+      </div>
+
+      <div class="eq-grid" id="eq-grid"></div>
+      <p class="op-empty" id="eq-empty" hidden>No equipment found.</p>
+
+    </div>
+
+  </main>
+
+</div>
+
+<!-- Add / edit -->
+<dialog class="op-modal eq-modal" id="eq-dialog" aria-labelledby="eq-dialog-title">
+  <form class="eq-form" id="eq-form" novalidate>
+
+    <div class="eq-modal__top">
+      <div class="eq-modal__bar">
+        <h2 id="eq-dialog-title">Edit equipment</h2>
+        <button type="button" class="op-icon-btn" id="eq-close" aria-label="Close">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18"></path></svg>
+        </button>
+      </div>
+      <div class="eq-status" id="eq-status" role="radiogroup" aria-label="Equipment status">
+        <button type="button" class="eq-status__btn" role="radio" data-value="good" aria-checked="true">Good</button>
+        <button type="button" class="eq-status__btn" role="radio" data-value="repair" aria-checked="false">Needs repair</button>
+        <button type="button" class="eq-status__btn" role="radio" data-value="out" aria-checked="false">Out of service</button>
+      </div>
+    </div>
+
+    <div class="eq-modal__details">
+      <p class="eq-modal__label">Details</p>
+
+      <div class="eq-photo">
+        <div class="eq-photo__preview" id="eq-photo-preview"></div>
+        <div class="eq-photo__actions">
+          <input type="file" id="eq-photo-input" accept="image/*" hidden />
+          <button type="button" class="op-btn op-btn--ghost op-btn--sm" id="eq-photo-pick">Upload photo</button>
+          <button type="button" class="op-btn op-btn--ghost op-btn--sm" id="eq-photo-remove">Remove photo</button>
+          <p class="eq-photo__hint">JPG or PNG. It is resized automatically.</p>
+        </div>
+      </div>
+
+      <div class="op-field">
+        <label for="eq-name">Equipment name</label>
+        <input type="text" id="eq-name" class="op-input" maxlength="60" autocomplete="off" required />
+      </div>
+      <div class="op-field">
+        <label for="eq-desc">Details &mdash; what it&rsquo;s used for <span class="op-note">optional</span></label>
+        <textarea id="eq-desc" class="op-input eq-textarea" rows="3" maxlength="300" placeholder="Example: Used for warm-ups and steady-state cardio. Max user weight 150 kg."></textarea>
+      </div>
+      <div class="op-form__grid">
+        <div class="op-field">
+          <label for="eq-category">Category</label>
+          <select id="eq-category" class="op-select"></select>
+        </div>
+        <div class="op-field">
+          <label for="eq-qty">Quantity</label>
+          <input type="number" id="eq-qty" class="op-input" min="0" step="1" value="1" required />
+        </div>
+        <div class="op-field">
+          <label for="eq-price">Rental price (&#8369;) <span class="op-note">optional</span></label>
+          <input type="number" id="eq-price" class="op-input" min="0" step="0.01" placeholder="0.00" />
+        </div>
+      </div>
+      <p class="op-form__error" id="eq-error" role="alert"></p>
+    </div>
+
+    <div class="eq-modal__footer">
+      <button type="button" class="op-btn op-btn--danger eq-delete" id="eq-delete">Delete</button>
+      <button type="button" class="op-btn op-btn--ghost" id="eq-cancel">Cancel</button>
+      <button type="submit" class="op-btn op-btn--primary" id="eq-save">Save changes</button>
+    </div>
+  </form>
+</dialog>
+
+<!-- Delete confirmation -->
+<dialog class="op-modal op-modal--sm" id="eq-delete-dialog" aria-labelledby="eq-delete-title">
+  <div class="op-form">
+    <h2 class="op-confirm__title" id="eq-delete-title">Delete equipment?</h2>
+    <p class="op-confirm__msg" id="eq-delete-msg"></p>
+    <div class="op-form__actions">
+      <button type="button" class="op-btn op-btn--ghost" id="eq-delete-cancel">Cancel</button>
+      <button type="button" class="op-btn op-btn--danger" id="eq-delete-confirm">Delete</button>
+    </div>
+  </div>
+</dialog>
+
+<div class="op-toast" id="op-toast" role="status" aria-live="polite" hidden></div>
+
+<script src="auth.js"></script>
+<script src="adminownerequipmentmanagement.js"></script>
+</body>
+</html>

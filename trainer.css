@@ -1,0 +1,127 @@
+/* =========================================================
+   trainer.css — extras for the trainer pages.
+   The page shell (top bar, sidebar, aside, cards, calendar)
+   comes from app.css, exactly like the member pages.
+   ========================================================= */
+
+/* keep the top bar clear of phone notches when installed as an app */
+.app-shell { grid-template-rows: calc(var(--topbar-height) + env(safe-area-inset-top, 0px)) 1fr; }
+.app-topbar { padding-top: env(safe-area-inset-top, 0px); }
+
+/* ---------- Dashboard cards ---------- */
+.stat-card__label { margin: 0 0 0.35rem; font-size: 1.15rem; font-weight: 700; }
+.stat-card__value { margin: 0; font-family: var(--font-display); font-size: 3rem; line-height: 1; color: var(--navy-deep); }
+.stat-card__hint  { margin: 0.5rem 0 0; color: var(--text-muted); font-size: 0.9rem; }
+
+.ongoing-note { margin: 0.75rem 0 0; font-weight: 600; color: var(--text-muted); font-size: 0.92rem; }
+.ongoing-empty { margin: 0; font-weight: 700; color: var(--text-muted); }
+
+.today-list { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 0.6rem; }
+.today-item {
+  display: grid; grid-template-columns: auto 1fr auto; gap: 0.75rem; align-items: center;
+  background: #e8effc; border-radius: 8px; padding: 0.6rem 0.8rem;
+}
+.today-item__time { font-weight: 700; font-size: 0.95rem; min-width: 4.6rem; }
+.today-item__meta { font-size: 0.82rem; color: var(--text-muted); }
+.today-item__status { font-size: 0.72rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.04em; color: var(--text-muted); }
+.today-item.is-now { background: var(--navy-accent); color: #fff; }
+.today-item.is-now .today-item__meta, .today-item.is-now .today-item__status { color: #dbe8f7; }
+.today-item.is-done { opacity: 0.6; }
+
+.log-card { margin-top: 1.25rem; }
+.table-section-header { display: flex; align-items: center; justify-content: space-between; gap: 0.75rem; flex-wrap: wrap; margin-bottom: 0.9rem; }
+.table-section-header .card-heading { margin: 0; padding: 0; border: 0; }
+.table-section-header .select-native { width: auto; min-width: 9rem; }
+.table-scroll { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+.data-table { width: 100%; min-width: 520px; border-collapse: collapse; font-size: 0.92rem; }
+.data-table thead th {
+  text-align: left; padding: 0.6rem 0.9rem; background: var(--navy-accent); color: #fff; font-weight: 700; white-space: nowrap;
+}
+.data-table thead th:first-child { border-top-left-radius: 8px; }
+.data-table thead th:last-child  { border-top-right-radius: 8px; }
+.data-table tbody td { padding: 0.65rem 0.9rem; border-bottom: 1px solid var(--border-soft); white-space: nowrap; }
+.data-table tbody tr.is-striped { background: #f3f6fb; }
+.data-table tbody tr.is-hidden { display: none; }
+.data-table__empty { margin: 1rem 0 0; text-align: center; color: var(--text-muted); font-weight: 600; }
+
+/* ---------- Aside: assigned classes (= the trainer's specialization) ---------- */
+.assigned-heading { font-size: 1.1rem; font-weight: 700; margin: 1.25rem 0 0.6rem; }
+.assigned-tags { list-style: none; margin: 0; padding: 0; display: flex; flex-wrap: wrap; gap: 0.4rem; }
+.big-calendar__cell.is-attended { background-color: #e3eefb; }
+.big-calendar__cell.is-attended.is-selected { background-color: #d8e3f5; }
+
+/* ---------- Calendar page ---------- */
+.calendar-header { display: flex; align-items: center; justify-content: space-between; gap: 0.75rem; flex-wrap: wrap; }
+.calendar-header .btn { text-decoration: none; }
+.class-dots { display: flex; gap: 3px; flex-wrap: wrap; justify-content: flex-end; align-self: flex-end; margin: 0 0 0 auto; }
+.big-calendar__cell:has(.class-dots) { flex-direction: column; justify-content: space-between; align-items: flex-end; }
+.class-dot { width: 9px; height: 9px; border-radius: 50%; border: 1.5px solid; display: inline-block; }
+.class-dot--yoga      { background: var(--tag-yoga-bg);      border-color: var(--tag-yoga-text); }
+.class-dot--zumba     { background: var(--tag-zumba-bg);     border-color: var(--tag-zumba-text); }
+.class-dot--taekwondo { background: var(--tag-taekwondo-bg); border-color: var(--tag-taekwondo-text); }
+.class-dot--gym       { background: var(--tag-gym-bg);       border-color: var(--tag-gym-text); }
+.class-dot--muaythai  { background: var(--tag-muaythai-bg);  border-color: var(--tag-muaythai-text); }
+.class-dot--boxing    { background: var(--tag-boxing-bg);    border-color: var(--tag-boxing-text); }
+.class-legend { display: flex; flex-wrap: wrap; align-items: center; gap: 0.4rem; margin-top: 1rem; }
+.class-legend__label { font-weight: 700; margin-right: 0.3rem; }
+.session-card__class { display: inline-block; margin-right: 0.4rem; }
+
+/* ---------- Member Progress ---------- */
+.toolbar { display: flex; flex-wrap: wrap; gap: 0.75rem; align-items: center; margin: 0.25rem 0 1rem; }
+.toolbar .select-native { width: auto; min-width: 11rem; }
+.input-native--search {
+  flex: 1 1 14rem; max-width: 22rem; padding: 0.6rem 0.9rem; border-radius: 10px; border: 1px solid var(--border-soft);
+  background: #fff; font: inherit;
+}
+.progress-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 1rem; }
+.member-card { display: flex; flex-direction: column; gap: 0.6rem; }
+.member-card__top { display: flex; align-items: center; justify-content: space-between; gap: 0.5rem; }
+.member-card__name { margin: 0; font-size: 1.05rem; font-weight: 700; }
+.member-card__meta { margin: 0; font-size: 0.85rem; color: var(--text-muted); }
+.meter { height: 8px; border-radius: 999px; background: #d9e3f3; overflow: hidden; }
+.meter > span { display: block; height: 100%; background: #3962a7; border-radius: inherit; }
+.member-card__row { display: flex; justify-content: space-between; align-items: center; gap: 0.5rem; font-size: 0.85rem; font-weight: 600; }
+.btn-small { padding: 0.35rem 0.9rem; font-size: 0.82rem; border-radius: 8px; border: 0; cursor: pointer; font-weight: 700; color: #fff; background: #3962a7; }
+.btn-small:hover { background: var(--navy-accent-hover); }
+.btn-small[disabled] { opacity: 0.5; cursor: not-allowed; }
+.empty-note { color: var(--text-muted); font-weight: 600; margin: 1rem 0; }
+
+/* ---------- Trainer Availability ---------- */
+.avail-layout { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 1.25rem; align-items: start; }
+.avail-note { margin: 0 0 1rem; color: var(--text-muted); font-size: 0.92rem; }
+.week-row { display: grid; grid-template-columns: 7.5rem 1fr 1fr; gap: 0.6rem; align-items: center; padding: 0.55rem 0; border-bottom: 1px solid var(--border-soft); }
+.week-row:last-of-type { border-bottom: 0; }
+.week-row__day { display: flex; align-items: center; gap: 0.5rem; font-weight: 700; }
+.week-row select:disabled { opacity: 0.45; }
+.week-row .select-native { padding: 0.45rem 0.7rem; font-size: 0.88rem; }
+.avail-actions { display: flex; flex-wrap: wrap; gap: 0.6rem; margin-top: 1rem; }
+.avail-actions .btn { cursor: pointer; }
+.avail-error { margin: 0.75rem 0 0; color: #b3261e; font-weight: 600; font-size: 0.9rem; }
+.dayoff-form { display: flex; gap: 0.5rem; flex-wrap: wrap; }
+.dayoff-form input[type="date"] { flex: 1 1 10rem; padding: 0.55rem 0.8rem; border-radius: 10px; border: 1px solid var(--border-soft); font: inherit; background: #fff; }
+.chip-list { list-style: none; margin: 1rem 0 0; padding: 0; display: flex; flex-direction: column; gap: 0.5rem; }
+.chip { display: flex; align-items: center; justify-content: space-between; gap: 0.5rem; background: #e8effc; border-radius: 8px; padding: 0.5rem 0.8rem; font-weight: 600; font-size: 0.92rem; }
+.chip button { border: 0; background: transparent; color: #b3261e; font-weight: 700; cursor: pointer; font: inherit; font-weight: 700; }
+
+/* ---------- Toast + install ---------- */
+.pwa-toast {
+  position: fixed; left: 50%; bottom: calc(1.25rem + env(safe-area-inset-bottom, 0px)); transform: translate(-50%, 140%);
+  background: var(--navy-deep); color: #fff; padding: 0.7rem 1.2rem; border-radius: 999px; font-weight: 600; font-size: 0.9rem;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.25); transition: transform 0.25s ease; z-index: 50; max-width: 92vw; text-align: center;
+}
+.pwa-toast.is-visible { transform: translate(-50%, 0); }
+.settings-panel a[data-install] svg { width: 18px; height: 18px; }
+
+/* ---------- Small screens ---------- */
+@media (max-width: 720px) {
+  .big-calendar-card { width: 100%; }
+  .week-row { grid-template-columns: 1fr 1fr; }
+  .week-row__day { grid-column: 1 / -1; }
+  .stat-card__value { font-size: 2.4rem; }
+}
+@media (display-mode: standalone) {
+  body { overscroll-behavior-y: none; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .pwa-toast { transition: none; }
+}

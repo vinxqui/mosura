@@ -1,0 +1,965 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <script src="supabase-config.js"></script>
+  <script src="gtg-db.js"></script>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Edit Profile · GTG Fitness Admin</title>
+<meta name="description" content="Update your GTG Fitness admin profile." />
+
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Anton&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+
+<link rel="stylesheet" href="app.css?v=30" />
+<style>
+/* =========================================================
+   profile-view.css — Edit Profile pages (member / trainer / admin)
+   Loaded after app.css, so it owns the layout of these pages.
+   ========================================================= */
+
+/* ---------- Page layout ---------- */
+.edit-profile-layout {
+  display: grid;
+  grid-template-columns: minmax(240px, 300px) minmax(0, 1fr);
+  gap: 1.25rem;
+  align-items: start;
+  max-width: 1040px;
+}
+
+.edit-profile-layout .card {
+  padding: clamp(1.1rem, 2.2vw, 1.75rem);
+}
+
+.edit-profile-layout .card-heading {
+  margin-bottom: 1.1rem;
+}
+
+/* ---------- Photo card ---------- */
+.edit-profile-photo img {
+  width: 148px;
+  height: 148px;
+  margin-bottom: 1.25rem;
+  border: 4px solid #fff;
+  box-shadow: 0 0 0 1px var(--border-soft), 0 6px 18px rgba(0, 0, 0, 0.1);
+  background: #f0f0ee;
+}
+
+.edit-profile-photo__actions .btn {
+  width: 100%;
+  padding: 0.75rem 1.2rem;
+  font-size: 0.95rem;
+}
+
+.edit-profile-photo__hint {
+  margin: 0.9rem 0 0;
+  font-size: 0.8rem;
+  color: var(--text-muted);
+}
+
+.edit-profile-photo__hint.is-error {
+  color: #b3261e;
+  font-weight: 600;
+}
+
+/* ---------- Details card ---------- */
+.edit-profile-layout .info-group-title {
+  margin: 1.75rem 0 0.2rem;
+  font-size: 0.78rem;
+  font-weight: 700;
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+
+.edit-profile-layout .info-group-title:first-of-type {
+  margin-top: 0.25rem;
+}
+
+.info-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.info-row {
+  display: grid;
+  grid-template-columns: minmax(96px, 150px) minmax(0, 1fr) auto;
+  align-items: center;
+  column-gap: 1rem;
+  padding: 0.85rem 0;
+  border-bottom: 1px solid var(--border-soft);
+  min-height: 3.5rem;
+}
+
+.info-list .info-row:last-child {
+  border-bottom: none;
+}
+
+.info-row__label {
+  font-size: 0.88rem;
+  font-weight: 600;
+  color: var(--text-muted);
+}
+
+.info-row__value {
+  font-size: 0.98rem;
+  font-weight: 500;
+  color: var(--text-dark);
+  overflow-wrap: anywhere;
+}
+
+.info-row__value.is-empty {
+  color: #9a9a97;
+  font-weight: 400;
+  font-style: italic;
+}
+
+.info-row__edit {
+  justify-self: end;
+  padding: 0.38rem 1rem;
+  border-radius: var(--radius-pill);
+  border: 1.5px solid var(--border-soft);
+  background: #fff;
+  color: var(--navy-deep);
+  font-size: 0.84rem;
+  font-weight: 700;
+  line-height: 1.2;
+  cursor: pointer;
+  transition: background-color 0.2s ease, border-color 0.2s ease, color 0.2s ease;
+}
+
+.info-row__edit:hover {
+  background-color: var(--navy-deep);
+  border-color: var(--navy-deep);
+  color: #fff;
+}
+
+/* ---------- Inline editor ---------- */
+.info-row.is-editing {
+  grid-template-columns: minmax(0, 1fr);
+  row-gap: 0.6rem;
+  background: #f7f7f5;
+  margin: 0 -0.75rem;
+  padding: 1rem 0.75rem;
+  border-radius: 10px;
+  border-bottom-color: transparent;
+}
+
+.info-row.is-editing .info-row__label {
+  color: var(--text-dark);
+}
+
+/* single-field editors: the field label already names it */
+.info-row.is-editing--single .info-row__label {
+  display: none;
+}
+.info-row.is-editing--single .info-form__field label {
+  color: var(--text-dark);
+  font-size: 0.88rem;
+}
+
+.info-form {
+  display: grid;
+  gap: 0.75rem;
+}
+
+.info-form__fields {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 0.75rem;
+}
+
+.info-form__field label {
+  display: block;
+  margin-bottom: 0.3rem;
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--text-muted);
+}
+
+.info-form__field input,
+.info-form__field select {
+  width: 100%;
+  padding: 0.65rem 0.9rem;
+  border: 1.5px solid var(--border-soft);
+  border-radius: 8px;
+  background: #fff;
+  color: var(--text-dark);
+  font-size: 0.95rem;
+}
+
+.info-form__field input:focus,
+.info-form__field select:focus {
+  outline: none;
+  border-color: var(--navy-accent);
+  box-shadow: 0 0 0 3px rgba(31, 78, 121, 0.18);
+}
+
+.info-form__field.has-error input,
+.info-form__field.has-error select {
+  border-color: #b3261e;
+}
+
+.info-form__error {
+  margin: 0;
+  min-height: 0;
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: #b3261e;
+}
+
+.info-form__error:empty {
+  display: none;
+}
+
+.info-form__actions {
+  display: flex;
+  gap: 0.6rem;
+}
+
+.info-form__actions .btn,
+.info-form__actions .btn-outline-plain {
+  padding: 0.5rem 1.2rem;
+  font-size: 0.88rem;
+}
+
+/* ---------- Feedback + footer ---------- */
+.info-toast {
+  display: none;
+  margin: 0 0 0.75rem;
+  padding: 0.6rem 0.9rem;
+  border-radius: 8px;
+  background: #e5f6e7;
+  color: #1f7a2e;
+  font-size: 0.9rem;
+  font-weight: 600;
+}
+
+.info-toast.is-visible {
+  display: block;
+}
+
+.info-footer {
+  margin-top: 1.5rem;
+  padding-top: 1.25rem;
+  border-top: 1px solid var(--border-soft);
+  display: flex;
+  justify-content: flex-end;
+}
+
+/* Trainer specialization tags sit tidily under their heading */
+.edit-profile-form-card .tag-list {
+  list-style: none;
+  padding: 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+/* ---------- Responsive ---------- */
+@media (max-width: 900px) {
+  .edit-profile-layout {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .edit-profile-photo {
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr);
+    grid-template-areas:
+      "img actions"
+      "hint hint";
+    align-items: center;
+    column-gap: 1.5rem;
+    text-align: left;
+  }
+
+  .edit-profile-photo img {
+    grid-area: img;
+    margin-bottom: 0;
+    width: 112px;
+    height: 112px;
+  }
+
+  .edit-profile-photo__actions { grid-area: actions; }
+  .edit-profile-photo__hint { grid-area: hint; }
+}
+
+@media (max-width: 520px) {
+  .edit-profile-photo {
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-areas: "img" "actions" "hint";
+    justify-items: center;
+    text-align: center;
+  }
+
+  .edit-profile-photo img { margin-bottom: 1rem; }
+  .edit-profile-photo__actions { width: 100%; }
+
+  .info-row {
+    grid-template-columns: minmax(0, 1fr) auto;
+    grid-template-areas:
+      "label edit"
+      "value value";
+    row-gap: 0.15rem;
+  }
+
+  .info-row__label { grid-area: label; }
+  .info-row__edit { grid-area: edit; }
+  .info-row__value { grid-area: value; }
+
+  .info-row.is-editing { margin: 0 -0.5rem; padding: 0.9rem 0.5rem; }
+  .info-form__actions .btn,
+  .info-form__actions .btn-outline-plain { flex: 1; }
+  .info-footer .btn-outline-plain { width: 100%; }
+}
+
+/* ---------- Height / weight unit toggle ---------- */
+.info-measure > label {
+  display: block;
+  margin-bottom: 0.4rem;
+  font-size: 0.88rem;
+  font-weight: 600;
+  color: var(--text-dark);
+}
+
+.unit-toggle {
+  display: inline-flex;
+  padding: 3px;
+  margin-bottom: 0.6rem;
+  border-radius: var(--radius-pill);
+  background: #e8e8e5;
+}
+
+.unit-toggle button {
+  min-width: 3.4rem;
+  padding: 0.35rem 1rem;
+  border: none;
+  border-radius: var(--radius-pill);
+  background: transparent;
+  color: var(--text-muted);
+  font-size: 0.85rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background-color 0.2s ease, color 0.2s ease;
+}
+
+.unit-toggle button[aria-pressed="true"] {
+  background: var(--navy-deep);
+  color: #fff;
+}
+
+.info-measure__inputs {
+  display: flex;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+}
+
+.info-measure__input {
+  position: relative;
+  flex: 1 1 140px;
+  max-width: 220px;
+}
+
+.info-measure__input input {
+  width: 100%;
+  padding: 0.65rem 2.6rem 0.65rem 0.9rem;
+  border: 1.5px solid var(--border-soft);
+  border-radius: 8px;
+  background: #fff;
+  font-size: 0.95rem;
+}
+
+.info-measure__input input:focus {
+  outline: none;
+  border-color: var(--navy-accent);
+  box-shadow: 0 0 0 3px rgba(31, 78, 121, 0.18);
+}
+
+.info-measure.has-error .info-measure__input input {
+  border-color: #b3261e;
+}
+
+.info-measure__input span {
+  position: absolute;
+  right: 0.9rem;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: var(--text-muted);
+  pointer-events: none;
+}
+
+</style>
+</head>
+<body>
+
+<div class="app-shell">
+
+  <header class="app-topbar">
+    <a href="ownerdashboard.html" class="app-topbar__logo">GTG FITNESS</a>
+    <details class="settings-menu">
+      <summary class="app-topbar__settings" aria-label="Settings">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+          <circle cx="12" cy="12" r="3"></circle>
+          <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.6a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9c.14.32.44.55.8.66.34.11.65.36.8.66"></path>
+        </svg>
+      </summary>
+      <div class="settings-panel">
+        <div class="settings-panel__profile">
+          <img src="https://images.unsplash.com/photo-1531123897727-8f129e1688ce?auto=format&fit=crop&w=100&q=80" alt="" />
+          <div>
+            <p class="settings-panel__profile-name">Santos, Rue</p>
+            <p class="settings-panel__profile-sub">Admin</p>
+          </div>
+        </div>
+        <a href="edit-profile-owner.html">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+            <path d="M12 20h9"></path>
+            <path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4Z"></path>
+          </svg>
+          Edit Profile
+        </a>
+        <div class="settings-panel__divider"></div>
+        <a href="index.html" class="settings-panel__logout">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+            <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
+            <path d="M16 17l5-5-5-5"></path>
+            <path d="M21 12H9"></path>
+          </svg>
+          Log Out
+        </a>
+      </div>
+    </details>
+  </header>
+
+  <nav class="app-sidebar" aria-label="Main navigation">
+    <ul class="app-nav">
+      <li><a href="ownerdashboard.html">Dashboard</a></li>
+      <li><a href="ownercalendar.html">Calendar</a></li>
+      <li><a href="ownermembermanagement.html">Members Management</a></li>
+      <li><a href="ownerclassmanagement.html">Class Management</a></li>
+      <li><a href="ownertrainermanagement.html">Trainer Management</a></li>
+      <li><a href="owneremployeemanagement.html">Employee Management</a></li>
+      <li><a href="ownerfeedback.html">Feedback Summary</a></li>
+      <li><a href="ownerperformanceanalytics.html">Performance Analytics</a></li>
+      <li><a href="ownerpaymentmanagement.html"> Payment Management </a></li>
+      <li><a href="ownerequipmentmanagement.html"> Equipment Management </a></li>
+    </ul>
+  </nav>
+
+  <main class="app-main">
+    <h1 class="page-title">Edit Profile</h1>
+    <p class="page-subtitle">Keep your admin account information up to date.</p>
+
+    <div class="edit-profile-layout">
+
+      <section class="card edit-profile-photo-card" aria-labelledby="photo-heading">
+        <h2 id="photo-heading" class="card-heading">Profile Photo</h2>
+        <div class="edit-profile-photo">
+          <img src="https://images.unsplash.com/photo-1531123897727-8f129e1688ce?auto=format&fit=crop&w=200&q=80" alt="Current profile photo" id="avatar-preview" />
+          <div class="edit-profile-photo__actions">
+            <label for="avatar-upload" class="btn btn-navy btn-block">Upload New Photo</label>
+            <input type="file" id="avatar-upload" accept="image/*" class="visually-hidden" />
+            <button type="button" class="btn btn-outline-plain btn-block">Remove Photo</button>
+          </div>
+          <p class="edit-profile-photo__hint">JPG or PNG. Max size 5MB.</p>
+        </div>
+      </section>
+
+      <section class="card edit-profile-form-card" aria-labelledby="details-heading">
+        <h2 id="details-heading" class="card-heading">Admin Details</h2>
+
+        <p class="info-toast" id="info-toast" role="status"></p>
+
+        <h3 class="info-group-title">Account</h3>
+        <ul class="info-list" data-store="admin-account">
+          <li class="info-row" data-key="name" data-label="Name" data-type="name" data-first="Rue" data-last="Santos">
+            <span class="info-row__label">Name</span>
+            <span class="info-row__value"></span>
+            <button type="button" class="info-row__edit" aria-expanded="false">Edit</button>
+          </li>
+          <li class="info-row" data-key="email" data-label="Email" data-type="email" data-default="rue.santos@gtgfitness.com">
+            <span class="info-row__label">Email</span>
+            <span class="info-row__value"></span>
+            <button type="button" class="info-row__edit" aria-expanded="false">Edit</button>
+          </li>
+          <li class="info-row" data-key="password" data-label="Password" data-type="password">
+            <span class="info-row__label">Password</span>
+            <span class="info-row__value"></span>
+            <button type="button" class="info-row__edit" aria-expanded="false">Edit</button>
+          </li>
+          <li class="info-row" data-key="phone" data-label="Phone Number" data-type="tel" data-default="0917 546 2414">
+            <span class="info-row__label">Phone Number</span>
+            <span class="info-row__value"></span>
+            <button type="button" class="info-row__edit" aria-expanded="false">Edit</button>
+          </li>
+        </ul>
+
+        <h3 class="info-group-title">Personal Information</h3>
+        <ul class="info-list" data-store="admin-personal">
+          <li class="info-row" data-key="age" data-label="Age" data-type="number" data-default="20">
+            <span class="info-row__label">Age</span>
+            <span class="info-row__value"></span>
+            <button type="button" class="info-row__edit" aria-expanded="false">Edit</button>
+          </li>
+          <li class="info-row" data-key="height" data-label="Height" data-type="height" data-default="6'1">
+            <span class="info-row__label">Height</span>
+            <span class="info-row__value"></span>
+            <button type="button" class="info-row__edit" aria-expanded="false">Edit</button>
+          </li>
+          <li class="info-row" data-key="weight" data-label="Weight" data-type="weight" data-default="65 kg">
+            <span class="info-row__label">Weight</span>
+            <span class="info-row__value"></span>
+            <button type="button" class="info-row__edit" aria-expanded="false">Edit</button>
+          </li>
+          <li class="info-row" data-key="gender" data-label="Gender" data-type="select" data-default="Female" data-options="Female|Male|Prefer not to say">
+            <span class="info-row__label">Gender</span>
+            <span class="info-row__value"></span>
+            <button type="button" class="info-row__edit" aria-expanded="false">Edit</button>
+          </li>
+          <li class="info-row" data-key="position" data-label="Position" data-type="select" data-default="Owner / Admin" data-options="Owner / Admin|Front Desk Admin|Operations Manager">
+            <span class="info-row__label">Position</span>
+            <span class="info-row__value"></span>
+            <button type="button" class="info-row__edit" aria-expanded="false">Edit</button>
+          </li>
+          <li class="info-row" data-key="address" data-label="Address" data-type="text" data-default="" data-placeholder="Street, Barangay, City">
+            <span class="info-row__label">Address</span>
+            <span class="info-row__value"></span>
+            <button type="button" class="info-row__edit" aria-expanded="false">Edit</button>
+          </li>
+        </ul>
+
+        <div class="info-footer">
+          <a href="ownerdashboard.html" class="btn btn-outline-plain">Back to Dashboard</a>
+        </div>
+      </section>
+
+    </div>
+  </main>
+
+</div>
+
+<script>
+/* =========================================================
+   profile-view.js — inline editing for the Edit Profile pages.
+   Works with every `.info-list[data-store]` on the page and keeps the
+   values in localStorage so they survive a reload.
+   Also handles the profile photo upload / remove.
+   ========================================================= */
+(function () {
+  'use strict';
+
+  var toast = document.getElementById('info-toast');
+  var toastTimer = null;
+
+  function load(store) {
+    try { return JSON.parse(localStorage.getItem('gtg-profile-' + store)) || {}; }
+    catch (e) { return {}; }
+  }
+  function save(store, data) {
+    try { localStorage.setItem('gtg-profile-' + store, JSON.stringify(data)); }
+    catch (e) { /* storage unavailable: values live for this visit only */ }
+  }
+
+  function showToast(msg) {
+    if (!toast) return;
+    toast.textContent = msg;
+    toast.classList.add('is-visible');
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(function () { toast.classList.remove('is-visible'); }, 3000);
+  }
+
+  function el(tag, attrs, text) {
+    var n = document.createElement(tag);
+    Object.keys(attrs || {}).forEach(function (k) { n.setAttribute(k, attrs[k]); });
+    if (text) n.textContent = text;
+    return n;
+  }
+
+  function formatDate(iso) {
+    var d = new Date(iso + 'T00:00:00');
+    if (isNaN(d)) return iso;
+    return d.toLocaleDateString('en-PH', { year: 'numeric', month: 'long', day: 'numeric' });
+  }
+
+  /* ---------- Value helpers ---------- */
+  function getValue(row, data) {
+    var key = row.dataset.key;
+    if (row.dataset.type === 'name') {
+      var n = data.name || {};
+      return {
+        first: n.first != null ? n.first : row.dataset.first || '',
+        last: n.last != null ? n.last : row.dataset.last || ''
+      };
+    }
+    if (row.dataset.type === 'password') return data.password || null;
+    return data[key] != null ? data[key] : (row.dataset.default || '');
+  }
+
+  function render(row, data) {
+    var out = row.querySelector('.info-row__value');
+    var v = getValue(row, data);
+    var type = row.dataset.type;
+    var text;
+
+    if (type === 'name') text = (v.first + ' ' + v.last).trim();
+    else if (type === 'password') text = '••••••••';
+    else if (type === 'date' && v) text = formatDate(v);
+    else text = v;
+
+    var empty = !text;
+    out.textContent = empty ? 'Not set' : text;
+    out.classList.toggle('is-empty', empty);
+  }
+
+
+  /* ---------- Height / weight with unit toggle ---------- */
+  function parseMeasure(type, str) {
+    str = String(str || '').trim();
+    var m;
+    if (type === 'height') {
+      if ((m = str.match(/^(\d+)\s*(?:'|’|ft|feet)\s*(\d+(?:\.\d+)?)?/i))) return { unit: 'ft', a: m[1], b: m[2] || '0' };
+      if ((m = str.match(/^(\d+(?:\.\d+)?)/))) return { unit: 'cm', a: m[1], b: '' };
+      return { unit: 'ft', a: '', b: '' };
+    }
+    m = str.match(/^(\d+(?:\.\d+)?)\s*(lb|lbs|pound|pounds)?/i);
+    if (m) return { unit: m[2] ? 'lb' : 'kg', a: m[1], b: '' };
+    return { unit: 'kg', a: '', b: '' };
+  }
+
+  function trim1(n) { return String(Math.round(n * 10) / 10); }
+
+  function convertMeasure(type, st, toUnit) {
+    var a = parseFloat(st.a), b = parseFloat(st.b) || 0;
+    if (isNaN(a)) return { unit: toUnit, a: '', b: '' };
+    if (type === 'height') {
+      if (toUnit === 'cm') return { unit: 'cm', a: String(Math.round((a * 12 + b) * 2.54)), b: '' };
+      var totalIn = a / 2.54, ft = Math.floor(totalIn / 12), inch = Math.round(totalIn - ft * 12);
+      if (inch === 12) { ft += 1; inch = 0; }
+      return { unit: 'ft', a: String(ft), b: String(inch) };
+    }
+    return { unit: toUnit, a: toUnit === 'lb' ? trim1(a * 2.20462) : trim1(a / 2.20462), b: '' };
+  }
+
+  function buildMeasure(type, uid, value) {
+    var units = type === 'height' ? ['ft', 'cm'] : ['kg', 'lb'];
+    var st = parseMeasure(type, value);
+    var api = { inputs: [] };
+    var wrap = el('div', { 'class': 'info-form__field info-measure' });
+    var toggle = el('div', { 'class': 'unit-toggle', role: 'group', 'aria-label': 'Unit' });
+    var body = el('div', { 'class': 'info-measure__inputs' });
+
+    function numberInput(id, label, suffix, step, max) {
+      var box = el('div', { 'class': 'info-measure__input' });
+      var i = el('input', { id: id, type: 'number', inputmode: 'decimal', step: step, min: '0', max: max, 'aria-label': label });
+      box.appendChild(i);
+      box.appendChild(el('span', {}, suffix));
+      body.appendChild(box);
+      return i;
+    }
+
+    function paint() {
+      body.textContent = '';
+      toggle.querySelectorAll('button').forEach(function (b) {
+        b.setAttribute('aria-pressed', String(b.dataset.unit === st.unit));
+      });
+      var a, b2 = null;
+      if (type === 'height' && st.unit === 'ft') {
+        a = numberInput(uid + '-a', 'Feet', 'ft', '1', '8');
+        b2 = numberInput(uid + '-b', 'Inches', 'in', '1', '11');
+      } else if (type === 'height') {
+        a = numberInput(uid + '-a', 'Centimeters', 'cm', '1', '272');
+      } else {
+        a = numberInput(uid + '-a', st.unit === 'kg' ? 'Kilograms' : 'Pounds', st.unit, '0.1', '900');
+      }
+      a.value = st.a;
+      if (b2) b2.value = st.b;
+      api.inputs = b2 ? [a, b2] : [a];
+    }
+
+    function snapshot() {
+      st.a = api.inputs[0].value;
+      st.b = api.inputs[1] ? api.inputs[1].value : '';
+    }
+
+    units.forEach(function (u) {
+      var btn = el('button', { type: 'button', 'data-unit': u, 'aria-pressed': 'false' }, u);
+      btn.addEventListener('click', function () {
+        if (u === st.unit) return;
+        snapshot();
+        st = convertMeasure(type, st, u);
+        paint();
+        api.inputs[0].focus();
+      });
+      toggle.appendChild(btn);
+    });
+
+    wrap.appendChild(toggle);
+    wrap.appendChild(body);
+    paint();
+    api.node = wrap;
+
+    api.read = function () {
+      snapshot();
+      var a = parseFloat(st.a), b = parseFloat(st.b);
+      var ins = api.inputs;
+      if (type === 'height' && st.unit === 'ft') {
+        if (isNaN(a) || a < 1 || a > 8 || a % 1) return { error: 'Enter whole feet between 1 and 8.', input: ins[0] };
+        if (isNaN(b)) b = 0;
+        if (b < 0 || b >= 12) return { error: 'Inches must be between 0 and 11.', input: ins[1] };
+        return { text: a + "'" + Math.round(b) + '"' };
+      }
+      if (type === 'height') {
+        if (isNaN(a) || a < 50 || a > 272) return { error: 'Enter a height between 50 and 272 cm.', input: ins[0] };
+        return { text: Math.round(a) + ' cm' };
+      }
+      var lo = st.unit === 'kg' ? 10 : 22, hi = st.unit === 'kg' ? 400 : 880;
+      if (isNaN(a) || a < lo || a > hi) return { error: 'Enter a weight between ' + lo + ' and ' + hi + ' ' + st.unit + '.', input: ins[0] };
+      return { text: trim1(a) + ' ' + st.unit };
+    };
+    return api;
+  }
+
+  /* ---------- Editor ---------- */
+  function field(id, label, input) {
+    var wrap = el('div', { 'class': 'info-form__field' });
+    wrap.appendChild(el('label', { 'for': id }, label));
+    wrap.appendChild(input);
+    return wrap;
+  }
+
+  function makeInput(id, type, value, placeholder) {
+    var i = el('input', { id: id, type: type });
+    if (value != null) i.value = value;
+    if (placeholder) i.placeholder = placeholder;
+    return i;
+  }
+
+  function closeEditor(row) {
+    var form = row.querySelector('.info-form');
+    if (form) form.remove();
+    row.classList.remove('is-editing', 'is-editing--single');
+    row.querySelector('.info-row__value').hidden = false;
+    var btn = row.querySelector('.info-row__edit');
+    btn.hidden = false;
+    btn.setAttribute('aria-expanded', 'false');
+    btn.focus();
+  }
+
+  function openEditor(row, data, store) {
+    // Only one editor open at a time
+    document.querySelectorAll('.info-row.is-editing').forEach(function (r) {
+      if (r !== row) closeEditor(r);
+    });
+
+    var type = row.dataset.type;
+    var key = row.dataset.key;
+    var label = row.dataset.label;
+    var uid = 'edit-' + store + '-' + key;
+    var v = getValue(row, data);
+    var inputs = [];
+    var measure = null;
+    var fields = el('div', { 'class': 'info-form__fields' });
+
+    if (type === 'name') {
+      var f = makeInput(uid + '-first', 'text', v.first); f.autocomplete = 'given-name';
+      var l = makeInput(uid + '-last', 'text', v.last); l.autocomplete = 'family-name';
+      inputs = [f, l];
+      fields.appendChild(field(uid + '-first', 'First name', f));
+      fields.appendChild(field(uid + '-last', 'Last name', l));
+    } else if (type === 'password') {
+      var p1 = makeInput(uid + '-new', 'password', '', 'At least 8 characters'); p1.autocomplete = 'new-password';
+      var p2 = makeInput(uid + '-confirm', 'password', '', 'Re-enter password'); p2.autocomplete = 'new-password';
+      inputs = [p1, p2];
+      fields.appendChild(field(uid + '-new', 'New password', p1));
+      fields.appendChild(field(uid + '-confirm', 'Confirm password', p2));
+    } else if (type === 'height' || type === 'weight') {
+      measure = buildMeasure(type, uid, v);
+      inputs = measure.inputs;
+      var mf = el('div', { 'class': 'info-form__fields info-form__fields--single' });
+      var mlabel = el('label', {}, label);
+      measure.node.insertBefore(mlabel, measure.node.firstChild);
+      mf.appendChild(measure.node);
+      fields = mf;
+    } else if (type === 'select') {
+      var s = el('select', { id: uid });
+      row.dataset.options.split('|').forEach(function (o) {
+        var opt = el('option', { value: o }, o);
+        if (o === v) opt.selected = true;
+        s.appendChild(opt);
+      });
+      inputs = [s];
+      fields.appendChild(field(uid, label, s));
+    } else {
+      var inp = makeInput(uid, type, v, row.dataset.placeholder);
+      if (type === 'number') { inp.min = '1'; inp.max = '120'; inp.inputMode = 'numeric'; }
+      if (type === 'date') inp.max = new Date().toISOString().slice(0, 10);
+      if (type === 'tel') inp.autocomplete = 'tel';
+      if (type === 'email') inp.autocomplete = 'email';
+      inputs = [inp];
+      fields.appendChild(field(uid, label, inp));
+    }
+
+    var error = el('p', { 'class': 'info-form__error', role: 'alert' });
+    var actions = el('div', { 'class': 'info-form__actions' });
+    var saveBtn = el('button', { type: 'submit', 'class': 'btn btn-navy' }, 'Save');
+    var cancelBtn = el('button', { type: 'button', 'class': 'btn btn-outline-plain' }, 'Cancel');
+    actions.appendChild(saveBtn);
+    actions.appendChild(cancelBtn);
+
+    var form = el('form', { 'class': 'info-form', novalidate: '' });
+    form.appendChild(fields);
+    form.appendChild(error);
+    form.appendChild(actions);
+
+    function fail(msg, input) {
+      error.textContent = msg;
+      form.querySelectorAll('.has-error').forEach(function (n) { n.classList.remove('has-error'); });
+      if (input) { (input.closest('.info-form__field') || input.parentNode).classList.add('has-error'); input.focus(); }
+      return false;
+    }
+
+    form.addEventListener('submit', function (e) {
+      e.preventDefault();
+      var val;
+
+      if (type === 'name') {
+        var first = inputs[0].value.trim(), last = inputs[1].value.trim();
+        if (!first) return fail('Please enter your first name.', inputs[0]);
+        if (!last) return fail('Please enter your last name.', inputs[1]);
+        data.name = { first: first, last: last };
+        syncHeaderName(first, last);
+      } else if (measure) {
+        var r = measure.read();
+        if (r.error) return fail(r.error, r.input);
+        data[key] = r.text;
+      } else if (type === 'password') {
+        if (inputs[0].value.length < 8) return fail('Password must be at least 8 characters.', inputs[0]);
+        if (inputs[0].value !== inputs[1].value) return fail('Passwords do not match.', inputs[1]);
+        data.password = true; // never store the password itself in the browser
+      } else {
+        val = inputs[0].value.trim();
+        if (type === 'email' && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(val)) return fail('Enter a valid email address.', inputs[0]);
+        if (type === 'tel' && !/^[0-9+()\-\s]{7,20}$/.test(val)) return fail('Enter a valid phone number.', inputs[0]);
+        if (type === 'number') {
+          var n = Number(val);
+          if (!val || !isFinite(n) || n < 1 || n > 120) return fail('Enter a valid age (1–120).', inputs[0]);
+        }
+        if (type === 'date' && val && new Date(val) > new Date()) return fail('Birthdate cannot be in the future.', inputs[0]);
+        if (type === 'text' && key !== 'address' && !val) return fail('This field can’t be empty.', inputs[0]);
+        data[key] = val;
+      }
+
+      save(store, data);
+      render(row, data);
+      closeEditor(row);
+      showToast(label + ' updated.');
+    });
+
+    cancelBtn.addEventListener('click', function () { closeEditor(row); });
+    form.addEventListener('keydown', function (e) {
+      if (e.key === 'Escape') { e.stopPropagation(); closeEditor(row); }
+    });
+
+    row.classList.add('is-editing');
+    if (type !== 'name' && type !== 'password') row.classList.add('is-editing--single');
+    row.querySelector('.info-row__value').hidden = true;
+    var btn = row.querySelector('.info-row__edit');
+    btn.hidden = true;
+    btn.setAttribute('aria-expanded', 'true');
+    row.appendChild(form);
+    (measure ? measure.inputs[0] : inputs[0]).focus();
+  }
+
+  /* Keep the "Last, First" name in the top-bar settings menu in sync */
+  function syncHeaderName(first, last) {
+    var n = document.querySelector('.settings-panel__profile-name');
+    if (n && /-account$/.test(currentAccountStore || '')) n.textContent = last + ', ' + first;
+  }
+  var currentAccountStore = '';
+
+  /* ---------- Wire up every list ---------- */
+  document.querySelectorAll('.info-list[data-store]').forEach(function (list) {
+    var store = list.dataset.store;
+    var data = load(store);
+    if (/-account$/.test(store)) {
+      currentAccountStore = store;
+      if (data.name) syncHeaderName(data.name.first, data.name.last);
+    }
+    list.querySelectorAll('.info-row').forEach(function (row) {
+      render(row, data);
+      row.querySelector('.info-row__edit').setAttribute('aria-label', 'Edit ' + row.dataset.label);
+      row.querySelector('.info-row__edit').addEventListener('click', function () {
+        openEditor(row, data, store);
+      });
+    });
+  });
+
+  /* ---------- Profile photo ---------- */
+  var preview = document.getElementById('avatar-preview');
+  var upload = document.getElementById('avatar-upload');
+  var hint = document.querySelector('.edit-profile-photo__hint');
+  var removeBtn = document.querySelector('.edit-profile-photo__actions .btn-outline-plain');
+  if (!preview || !upload) return;
+
+  var originalSrc = preview.getAttribute('src');
+  var hintText = hint ? hint.textContent : '';
+  var placeholder = 'data:image/svg+xml;utf8,' + encodeURIComponent(
+    '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200"><rect width="200" height="200" fill="#dcdcd8"/>' +
+    '<circle cx="100" cy="78" r="36" fill="#a9a9a4"/><path d="M28 200c4-44 36-68 72-68s68 24 72 68z" fill="#a9a9a4"/></svg>');
+
+  function setHint(msg, isError) {
+    if (!hint) return;
+    hint.textContent = msg || hintText;
+    hint.classList.toggle('is-error', !!isError);
+  }
+
+  preview.addEventListener('error', function () {
+    if (preview.getAttribute('src') !== placeholder) preview.src = placeholder;
+  });
+
+  upload.addEventListener('change', function (e) {
+    var file = e.target.files && e.target.files[0];
+    if (!file) return;
+    if (!/^image\/(jpeg|png)$/.test(file.type)) {
+      setHint('Please choose a JPG or PNG image.', true);
+      upload.value = '';
+      return;
+    }
+    if (file.size > 5 * 1024 * 1024) {
+      setHint('That file is over 5MB. Please choose a smaller one.', true);
+      upload.value = '';
+      return;
+    }
+    var reader = new FileReader();
+    reader.onload = function (ev) {
+      preview.src = ev.target.result;
+      setHint('', false);
+      showToast('Profile photo updated.');
+    };
+    reader.readAsDataURL(file);
+  });
+
+  if (removeBtn) {
+    removeBtn.addEventListener('click', function () {
+      preview.src = placeholder;
+      upload.value = '';
+      setHint('', false);
+      showToast('Profile photo removed.');
+    });
+  }
+})();
+
+</script>
+<script>
+  document.addEventListener('click', function (e) {
+    document.querySelectorAll('details.settings-menu[open]').forEach(function (d) {
+      if (!d.contains(e.target)) d.removeAttribute('open');
+    });
+  });
+</script>
+</body>
+</html>

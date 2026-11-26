@@ -1,0 +1,206 @@
+/* GTG Fitness – Equipment Management (card layout)
+   Load AFTER app.css and ownerpages.css. */
+
+/* ---------- toolbar ---------- */
+.eq-toolbar {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-bottom: 18px;
+}
+.eq-toolbar .op-search { margin-right: auto; }
+
+/* ---------- card grid ---------- */
+.eq-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+  gap: 16px;
+}
+
+.eq-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 18px 16px 16px;
+  border-radius: var(--radius-card, 14px);
+  background: #fff;
+  box-shadow: 0 1px 3px rgba(16, 24, 40, .08), 0 1px 2px rgba(16, 24, 40, .04);
+  text-align: center;
+  transition: box-shadow .18s ease, transform .18s ease;
+}
+.eq-card:hover {
+  box-shadow: 0 10px 24px rgba(16, 24, 40, .12);
+  transform: translateY(-2px);
+}
+
+.eq-card__name {
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  min-height: 2.5em;
+  margin: 0 0 8px;
+  font-size: 1.2rem;
+  font-weight: 700;
+  line-height: 1.25;
+  overflow-wrap: anywhere;
+}
+
+.eq-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 14px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: .02em;
+}
+.eq-pill::before {
+  content: "";
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: currentColor;
+}
+.eq-pill--good   { background: var(--op-ok-bg);   color: var(--op-ok); }
+.eq-pill--repair { background: var(--op-warn-bg); color: var(--op-warn); }
+.eq-pill--out    { background: var(--op-bad-bg);  color: var(--op-bad); }
+
+.eq-card__img {
+  display: block;
+  width: 100%;
+  aspect-ratio: 1 / 1;
+  margin: 14px 0 12px;
+  border-radius: 10px;
+  object-fit: cover;
+  background: #eef2f7;
+}
+.eq-ph {
+  display: grid;
+  place-items: center;
+  background: linear-gradient(160deg, #dbe9fb, #eef2f7);
+  color: #7aa7d6;
+}
+.eq-ph svg { width: 44%; height: 44%; }
+
+.eq-card__meta {
+  margin: 0 0 14px;
+  font-size: 13px;
+  color: var(--op-muted);
+}
+
+.eq-card__edit {
+  width: 100%;
+  margin-top: auto;
+  padding: 10px 16px;
+  border: 0;
+  border-radius: 8px;
+  background: var(--op-navy);
+  color: #fff;
+  font-family: "Inter", sans-serif;
+  font-size: 15px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background .15s ease;
+}
+.eq-card__edit:hover { background: var(--op-navy-2); }
+.eq-card__edit:focus-visible { outline: 3px solid #7aa7d6; outline-offset: 2px; }
+
+/* "+" card */
+.eq-card--add { padding: 0; min-height: 320px; background: transparent; box-shadow: none; }
+.eq-card--add:hover { box-shadow: none; }
+.eq-add-btn {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  width: 100%;
+  height: 100%;
+  min-height: 320px;
+  border: 2px dashed var(--op-navy);
+  border-radius: var(--radius-card, 14px);
+  background: #fff;
+  color: var(--op-navy);
+  font-family: "Inter", sans-serif;
+  font-size: 15px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background .15s ease;
+}
+.eq-add-btn:hover { background: #f3f7fc; }
+.eq-add-btn:focus-visible { outline: 3px solid #7aa7d6; outline-offset: 2px; }
+.eq-add-btn__plus { font-size: 56px; font-weight: 400; line-height: 1; }
+
+/* ---------- popup ---------- */
+.eq-modal { width: min(580px, 94vw); max-height: 92vh; max-height: 92dvh; overflow: hidden; }
+.eq-modal[open] { display: flex; flex-direction: column; }
+
+/* the form fills the popup; only the details area scrolls, header and buttons stay put */
+.eq-form { display: flex; flex-direction: column; flex: 1 1 auto; min-height: 0; max-height: inherit; }
+
+.eq-modal__top {
+  flex: none;
+  padding: 18px 22px 20px;
+  background: #e4e9ef;
+}
+.eq-modal__bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 14px;
+}
+.eq-modal__bar h2 { margin: 0; font-size: 20px; font-weight: 700; }
+
+.eq-status { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; }
+.eq-status__btn {
+  padding: 10px 8px;
+  border: 2px solid transparent;
+  border-radius: 999px;
+  background: #fff;
+  color: var(--op-ink);
+  font-family: "Inter", sans-serif;
+  font-size: 13.5px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background .15s ease, border-color .15s ease, color .15s ease;
+}
+.eq-status__btn:hover { border-color: #b8c2cf; }
+.eq-status__btn:focus-visible { outline: 3px solid #7aa7d6; outline-offset: 2px; }
+.eq-status__btn[aria-checked="true"][data-value="good"]   { background: var(--op-ok-bg);   border-color: var(--op-ok);   color: var(--op-ok); }
+.eq-status__btn[aria-checked="true"][data-value="repair"] { background: var(--op-warn-bg); border-color: #d99a1b;        color: var(--op-warn); }
+.eq-status__btn[aria-checked="true"][data-value="out"]    { background: var(--op-bad-bg);  border-color: var(--op-bad);  color: var(--op-bad); }
+
+.eq-modal__details { display: flex; flex-direction: column; flex: 1 1 auto; min-height: 0; gap: 16px; padding: 22px; overflow-y: auto; background: #fff; }
+.eq-modal__label { margin: 0 0 -6px; font-size: 12px; font-weight: 700; letter-spacing: .05em; text-transform: uppercase; color: var(--op-muted); }
+
+.eq-textarea { min-height: 84px; resize: vertical; font-family: "Inter", sans-serif; font-size: 14px; line-height: 1.5; }
+
+.eq-photo { display: flex; align-items: center; gap: 16px; }
+.eq-photo__preview {
+  flex: none;
+  width: 96px;
+  height: 96px;
+  overflow: hidden;
+  border-radius: 10px;
+  background: #eef2f7;
+}
+.eq-photo__preview img { width: 100%; height: 100%; object-fit: cover; }
+.eq-photo__preview.eq-ph svg { width: 44%; height: 44%; }
+.eq-photo__actions { display: flex; flex-direction: column; align-items: flex-start; gap: 8px; }
+.eq-photo__hint { margin: 0; font-size: 12px; color: var(--op-muted); }
+
+.eq-modal__footer { display: flex; flex: none; align-items: center; gap: 10px; padding: 14px 22px 20px; border-top: 1px solid var(--op-line); background: #fff; }
+.eq-modal__footer .eq-delete { margin-right: auto; }
+
+@media (max-width: 520px) {
+  .eq-status { grid-template-columns: 1fr; }
+  .eq-photo { flex-direction: column; align-items: flex-start; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .eq-card, .eq-card:hover { transform: none; }
+}

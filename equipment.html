@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <script src="supabase-config.js"></script>
+  <script src="gtg-db.js"></script>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Equipment · GTG Fitness</title>
+<meta name="description" content="Rent or buy gear at GTG Fitness." />
+
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Anton&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+<link href="https://fonts.googleapis.com/css2?family=BBH+Bogle&display=swap" rel="stylesheet" />
+
+<link rel="stylesheet" href="app.css?v=30" />
+</head>
+<body>
+
+<div class="app-shell">
+
+  <header class="app-topbar">
+    <a href="memberdashboard.html" class="app-topbar__logo">GTG FITNESS</a>
+    <details class="settings-menu">
+      <summary class="app-topbar__settings" aria-label="Settings">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+          <circle cx="12" cy="12" r="3"></circle>
+          <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.6a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9c.14.32.44.55.8.66.34.11.65.36.8.66"></path>
+        </svg>
+      </summary>
+      <div class="settings-panel">
+        <div class="settings-panel__profile">
+          <img src="https://images.unsplash.com/photo-1544005313-94ddf0286df2?auto=format&fit=crop&w=100&q=80" alt="" />
+          <div>
+            <p class="settings-panel__profile-name">Madriaga, Rafaela</p>
+            <p class="settings-panel__profile-sub">Member</p>
+          </div>
+        </div>
+        <a href="edit-profile.html">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+            <path d="M12 20h9"></path>
+            <path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4Z"></path>
+          </svg>
+          Edit Profile
+        </a>
+        <div class="settings-panel__divider"></div>
+        <a href="index.html" class="settings-panel__logout">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+            <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
+            <path d="M16 17l5-5-5-5"></path>
+            <path d="M21 12H9"></path>
+          </svg>
+          Log Out
+        </a>
+      </div>
+    </details>
+  </header>
+
+  <nav class="app-sidebar" aria-label="Main navigation">
+    <ul class="app-nav">
+      <li><a href="memberdashboard.html">Dashboard</a></li>
+      <li><a href="calendar.html">Calendar</a></li>
+      <li><a href="classes.html">Classes</a></li>
+      <li><a href="trainers.html">Trainers</a></li>
+      <li class="is-active"><a href="equipment.html" aria-current="page">Equipment</a></li>
+      <li><a href="payment.html">Payment</a></li>
+      <li><a href="feedback.html">Feedback</a></li>
+    </ul>
+  </nav>
+
+  <main class="app-main">
+    <h1 class="page-title">Equipment</h1>
+    <p class="page-subtitle">Rent or buy gear for your next session.</p>
+
+    <div class="equip-layout">
+      <section aria-label="Available equipment">
+        <div class="chip-row" id="equip-filters" role="group" aria-label="Filter by category"></div>
+        <div class="equip-grid" id="equip-grid"></div>
+      </section>
+
+      <aside class="card equip-summary" aria-labelledby="equip-order-heading">
+        <h2 id="equip-order-heading" class="card-heading">Your Order <span class="badge-count" id="equip-count">0</span></h2>
+        <p class="equip-summary__empty" id="equip-empty">Add equipment with the + button.</p>
+        <ul class="order-summary__list" id="equip-order-list"></ul>
+        <p class="order-summary__total"><span>Total</span> <strong id="equip-total">&#8369;0</strong></p>
+        <button type="button" class="btn btn-navy btn-block" id="equip-checkout" disabled>Checkout</button>
+      </aside>
+    </div>
+  </main>
+
+</div>
+
+<script src="equipment-data.js"></script>
+<script src="payment-store.js?v=1"></script>
+<script src="checkout.js?v=5"></script>
+<script src="shell.js"></script>
+<script src="equipment.js"></script>
+</body>
+</html>

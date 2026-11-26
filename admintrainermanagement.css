@@ -1,0 +1,170 @@
+/* GTG Fitness – Trainer Management cards (admin). Load AFTER app.css. */
+
+.tm-page {
+  --tm-navy: #16324f;
+  --tm-navy-2: #1f4670;
+  --tm-green: #2fae48;
+  --tm-green-bg: #dff5e3;
+  --tm-green-ink: #1b7a31;
+  --tm-red: #c4243a;
+  --tm-red-bg: #fbe3e6;
+  --tm-red-ink: #a11d31;
+  --tm-line: #e3e6eb;
+  --tm-muted: #5b6472;
+  font-family: "Inter", sans-serif;
+}
+
+/* ---------- header ---------- */
+/* Title + category filter use the member page's .trainers-header, so the filter stays small beside the title */
+.tm-header { margin-bottom: 0; }
+
+/* ---------- buttons ---------- */
+.tm-btn {
+  display: inline-block;
+  text-decoration: none;
+  line-height: 1.2;
+  font-family: "Inter", sans-serif;
+  font-size: 14px;
+  font-weight: 600;
+  padding: 9px 16px;
+  border-radius: 8px;
+  border: 1px solid transparent;
+  cursor: pointer;
+  transition: background .15s ease;
+}
+.tm-btn--primary { background: var(--tm-navy); color: #fff; }
+.tm-btn--primary:hover { background: var(--tm-navy-2); }
+.tm-btn--ghost { background: #fff; color: var(--tm-navy); border-color: #c3cad5; }
+.tm-btn--ghost:hover { background: #f1f4f8; }
+.tm-btn--danger { background: #fff; color: var(--tm-red); border-color: #e8b4bb; margin-right: auto; }
+.tm-btn--danger:hover { background: var(--tm-red-bg); }
+.tm-btn:focus-visible,
+.tm-card__toggle:focus-visible,
+.tm-cal__day:focus-visible,
+.tm-cal__nav button:focus-visible { outline: 3px solid #7aa7d6; outline-offset: 2px; }
+
+/* ---------- grid + cards ---------- */
+/* A closed card is the member Trainers card (size, padding, photo and tags come from .trainer-card in app.css).
+   Opening the arrow makes the card WIDER (two cards wide) and shows the details on the right.
+   The height never changes: the details sit in an absolutely-positioned panel that can't push the card taller. */
+.tm-grid { align-items: stretch; --tm-w: 255px; --tm-col: 170px; --tm-inner: 236px; }
+
+.trainers-grid .trainer-card.tm-card { position: relative; min-width: 0; }
+
+@media (min-width: 981px) {
+  .trainers-grid .trainer-card.tm-card.is-open { flex: 0 0 calc(var(--tm-w) * 2 + 0.7rem); width: calc(var(--tm-w) * 2 + 0.7rem); }
+}
+@media (max-width: 980px) {
+  .trainers-grid .trainer-card.tm-card.is-open { grid-column: span 2; }
+}
+
+.tm-card__row { position: relative; width: 100%; min-width: 0; }
+.tm-card__main { display: flex; flex-direction: column; align-items: center; min-width: 0; }
+.tm-card.is-open .tm-card__main { width: var(--tm-inner); }   /* name, photo and tags stay exactly where they were */
+
+/* name + photo sit a little to the left so the arrow fits evenly in the margin on the right */
+.tm-card__main .trainer-card__name,
+.tm-card__photo-wrap { position: relative; left: -10px; }
+.tm-card__main .trainer-card__name { width: var(--tm-col); margin-left: 0; margin-right: 0; text-align: center; }
+.tm-card__photo-wrap { width: var(--tm-col); }
+.tm-card__photo-wrap .trainer-card__photo { display: block; width: 100%; margin-left: 0; margin-right: 0; background: #e5e7eb; }
+
+/* the arrow sits in the margin just right of the photo, centred on it */
+.tm-card__toggle { position: absolute; left: calc(100% + 10px); top: 50%; transform: translateY(-50%); }
+.tm-card.is-open .tm-card__toggle svg { transform: rotate(180deg); }
+
+/* details: fill the right half, exactly as tall as the card's content (scrolls if it ever needs more) */
+.tm-card .tm-panel {
+  position: absolute; top: 0; bottom: 0; left: calc(var(--tm-inner) + 10px); right: 0;
+  overflow-y: auto; justify-content: space-between;
+}
+
+@media (max-width: 980px) {
+  /* cards are fluid here: photo, name and tags fill their half; details take the other half */
+  .tm-card__main .trainer-card__name, .tm-card__photo-wrap { left: 0; }
+  .tm-card__photo-wrap, .tm-card__main .trainer-card__name { width: 100%; }
+  .tm-card.is-open .tm-card__main { width: calc(50% - 5px); }
+  .tm-card .tm-panel { left: calc(50% + 5px); }
+  /* the photo fills the card here, so the arrow sits on a small white disc over its right edge */
+  .tm-card .tm-card__toggle { left: auto; right: 6px; background: rgba(255, 255, 255, .9); box-shadow: 0 1px 4px rgba(0, 0, 0, .25); }
+}
+
+/* arrow button */
+.tm-card__toggle {
+  display: grid;
+  place-items: center;
+  width: 32px;
+  height: 32px;
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+  background: transparent;
+  color: #111;
+  cursor: pointer;
+}
+.tm-card__toggle:hover { background: #eef2f7; }
+.tm-card__toggle:focus-visible { outline: 3px solid #7aa7d6; outline-offset: 2px; }
+.tm-card__toggle svg { width: 26px; height: 26px; transition: transform .2s ease; }
+
+/* ---------- "+" panel: same size as a trainer panel, no dashed border ---------- */
+.trainers-grid .trainer-card.tm-add-card {
+  align-items: center;
+  border: 0;
+  outline: none;
+  justify-content: center;
+  min-height: 269px;
+  color: var(--tm-navy);
+  text-decoration: none;
+  cursor: pointer;
+  transition: background .15s ease;
+}
+.tm-add-card__plus { font-size: 80px; font-weight: 300; line-height: 1; }
+.tm-add-card:hover { background: #f1f4f8; }
+.trainers-grid .trainer-card.tm-add-card,
+.trainers-grid .trainer-card.tm-add-card:hover,
+.trainers-grid .trainer-card.tm-add-card:focus,
+.trainers-grid .trainer-card.tm-add-card:focus-visible,
+.trainers-grid .trainer-card.tm-add-card:active {
+  border: 0;
+  outline: none;
+}
+.tm-add-card:focus-visible { box-shadow: 0 0 0 3px rgba(122, 167, 214, .55); }
+
+/* ---------- extended panel: details ---------- */
+.tm-panel { min-width: 0; display: flex; flex-direction: column; gap: 10px; }
+
+.tm-details__top { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 8px; }
+.tm-stars { color: #f5b301; font-size: 20px; letter-spacing: 2px; line-height: 1; }
+.tm-stars .off { color: #d4d8de; }
+
+.tm-bio {
+  margin: 0; color: #555; font-size: 13px; line-height: 1.45;
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 3;
+  line-clamp: 3;
+  overflow: hidden;
+}
+
+.tm-facts {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  gap: 5px 12px;
+  margin: 0;
+  font-size: 12.5px;
+}
+.tm-facts dt { font-weight: 600; }
+.tm-facts dd { margin: 0; color: #333; overflow-wrap: anywhere; }
+
+.tm-details__actions { display: flex; justify-content: flex-end; gap: 10px; margin-top: 4px; }   /* Edit details sits on the right */
+
+.tm-chip {
+  display: inline-block;
+  padding: 4px 10px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 600;
+  white-space: nowrap;
+}
+.tm-chip--on { background: var(--tm-green-bg); color: var(--tm-green-ink); }
+.tm-chip--off { background: var(--tm-red-bg); color: var(--tm-red-ink); }

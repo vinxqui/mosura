@@ -1,0 +1,253 @@
+/* GTG Fitness – Trainer profile page (admin). Load AFTER app.css. */
+
+.tm-page {
+  --tm-navy: #16324f;
+  --tm-navy-2: #1f4670;
+  --tm-green: #2fae48;
+  --tm-green-bg: #dff5e3;
+  --tm-green-ink: #1b7a31;
+  --tm-red: #c4243a;
+  --tm-red-bg: #fbe3e6;
+  --tm-red-ink: #a11d31;
+  --tm-line: #e3e6eb;
+  --tm-muted: #5b6472;
+  font-family: "Inter", sans-serif;
+}
+
+/* ---------- buttons ---------- */
+.tm-btn {
+  display: inline-block;
+  text-decoration: none;
+  line-height: 1.2;
+  font-family: "Inter", sans-serif;
+  font-size: 14px;
+  font-weight: 600;
+  padding: 9px 16px;
+  border-radius: 8px;
+  border: 1px solid transparent;
+  cursor: pointer;
+  transition: background .15s ease;
+}
+.tm-btn--primary { background: var(--tm-navy); color: #fff; }
+.tm-btn--primary:hover { background: var(--tm-navy-2); }
+.tm-btn--ghost { background: #fff; color: var(--tm-navy); border-color: #c3cad5; }
+.tm-btn--ghost:hover { background: #f1f4f8; }
+.tm-btn--danger { background: #fff; color: var(--tm-red); border-color: #e8b4bb; margin-right: auto; }
+.tm-btn--danger:hover { background: var(--tm-red-bg); }
+.tm-btn:focus-visible,
+.tm-card__toggle:focus-visible,
+.tm-cal__day:focus-visible,
+.tm-cal__nav button:focus-visible { outline: 3px solid #7aa7d6; outline-offset: 2px; }
+
+/* ---------- header with Back ---------- */
+.tp-head { display: flex; align-items: center; flex-wrap: wrap; gap: 14px; margin-bottom: 16px; }
+.tp-head .page-title { margin: 0; }
+
+/* ---------- layout: profile form left, availability right ---------- */
+.tp-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 460px) minmax(0, 1fr);
+  gap: 18px;
+  align-items: start;
+  max-width: 1180px;
+}
+.tp-card {
+  min-width: 0;
+  padding: 20px;
+  background: #fff;
+  border-radius: 18px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, .08);
+}
+.tp-form {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 14px 16px;
+}
+.tp-form .tm-panel__title { grid-column: 1 / -1; }
+
+.tp-photo { grid-column: 1 / -1; display: flex; align-items: center; gap: 14px; }
+.tp-preview {
+  flex: none;
+  width: 92px;
+  height: 92px;
+  border-radius: 12px;
+  object-fit: cover;
+  background: #e5e7eb;
+}
+.tp-photo__ctl { flex: 1; min-width: 0; display: flex; flex-direction: column; align-items: flex-start; gap: 8px; }
+
+.tm-field { display: flex; flex-direction: column; gap: 6px; min-width: 0; }
+.tm-field--wide { grid-column: 1 / -1; }
+.tm-field label, .tm-label { font-size: 13px; font-weight: 600; }
+
+.tm-input {
+  width: 100%;
+  box-sizing: border-box;
+  padding: 9px 11px;
+  border: 1px solid #c3cad5;
+  border-radius: 8px;
+  background: #fff;
+  font-family: "Inter", sans-serif;
+  font-size: 14px;
+  color: #111;
+}
+textarea.tm-input { resize: vertical; }
+.tm-input:focus-visible { outline: 2px solid var(--tm-navy); outline-offset: 1px; }
+
+.tm-chips { display: flex; flex-wrap: wrap; gap: 8px; }
+.tm-pick { position: relative; }
+.tm-pick input { position: absolute; opacity: 0; width: 1px; height: 1px; }
+.tm-pick span {
+  display: inline-block;
+  padding: 6px 12px;
+  border: 1px solid #c3cad5;
+  border-radius: 999px;
+  background: #fff;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+}
+.tm-pick input:checked + span { background: var(--tm-navy); border-color: var(--tm-navy); color: #fff; }
+.tm-pick input:focus-visible + span { outline: 3px solid #7aa7d6; outline-offset: 2px; }
+
+.tm-popup__error { grid-column: 1 / -1; margin: 0; color: var(--tm-red); font-size: 13px; font-weight: 600; }
+.tp-actions { grid-column: 1 / -1; display: flex; flex-wrap: wrap; justify-content: flex-end; gap: 10px; margin-top: 4px; }
+
+.tm-panel { min-width: 0; display: flex; flex-direction: column; gap: 12px; }
+
+/* ---------- doubled panel: calendar + schedule ---------- */
+.tm-manage {
+  padding: 14px;
+  background: #e8effc;
+  border: 1px solid #c3d0e6;
+  border-radius: 12px;
+}
+.tm-panel__title {
+  margin: 0;
+  font-family: "Anton", "Inter", sans-serif;
+  font-size: 20px;
+  font-weight: 400;
+}
+
+.tm-cal__nav {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 8px;
+  font-size: 15px;
+}
+.tm-cal__nav button {
+  width: 32px;
+  height: 32px;
+  border: 0;
+  border-radius: 8px;
+  background: #fff;
+  font-size: 20px;
+  line-height: 1;
+  cursor: pointer;
+}
+.tm-cal__nav button:hover { background: #dbe5f7; }
+
+.tm-cal__grid {
+  display: grid;
+  grid-template-columns: repeat(7, minmax(0, 1fr));
+  gap: 4px;
+}
+.tm-cal__dow {
+  text-align: center;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--tm-muted);
+}
+.tm-cal__day {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  min-height: 46px;
+  padding: 4px 6px 5px;
+  border: 1px solid var(--tm-line);
+  border-radius: 8px;
+  background: #fff;
+  font-family: "Inter", sans-serif;
+  font-size: 13px;
+  color: #222;
+  text-align: left;
+  cursor: pointer;
+}
+.tm-cal__day::after {
+  content: "";
+  display: block;
+  height: 6px;
+  border-radius: 999px;
+}
+.tm-cal__day.is-on { background: #f4fbf5; }
+.tm-cal__day.is-on::after { background: var(--tm-green); }
+.tm-cal__day.is-off { background: #fdf4f5; }
+.tm-cal__day.is-off::after { background: var(--tm-red); }
+.tm-cal__day:hover { border-color: var(--tm-navy); }
+.tm-cal__day.is-selected { outline: 2px solid var(--tm-navy); outline-offset: 1px; }
+.tm-cal__day.is-today .tm-cal__num { font-weight: 800; text-decoration: underline; }
+
+.tm-legend {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 14px;
+  font-size: 12px;
+}
+.tm-legend__item::before {
+  content: "";
+  display: inline-block;
+  width: 10px;
+  height: 10px;
+  margin-right: 6px;
+  border-radius: 50%;
+  vertical-align: -1px;
+}
+.tm-legend__item--on::before { background: var(--tm-green); }
+.tm-legend__item--off::before { background: var(--tm-red); }
+.tm-legend__hint { margin-left: auto; color: var(--tm-muted); }
+
+.tm-sched {
+  padding: 12px;
+  background: #fff;
+  border: 1px solid #c3d0e6;
+  border-radius: 10px;
+}
+.tm-sched__head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 10px;
+  font-size: 14px;
+}
+.tm-sched__hours {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(64px, 1fr));
+  gap: 6px;
+}
+.tm-hour {
+  padding: 8px 0;
+  border: 1px solid transparent;
+  border-radius: 8px;
+  font-size: 12px;
+  font-weight: 600;
+  text-align: center;
+}
+.tm-hour.is-on { background: var(--tm-green-bg); border-color: #a9dfb5; color: var(--tm-green-ink); }
+.tm-hour.is-off { background: var(--tm-red-bg); border-color: #efb0b9; color: var(--tm-red-ink); }
+
+/* ---------- smaller screens ---------- */
+@media (max-width: 980px) {
+  .tp-layout { grid-template-columns: minmax(0, 1fr); }
+}
+@media (max-width: 520px) {
+  .tp-form { grid-template-columns: minmax(0, 1fr); }
+}
+
+/* status chips used in the schedule header */
+.tm-chip { display: inline-block; padding: 4px 10px; border-radius: 999px; font-size: 12px; font-weight: 600; white-space: nowrap; }
+.tm-chip--on { background: var(--tm-green-bg); color: var(--tm-green-ink); }
+.tm-chip--off { background: var(--tm-red-bg); color: var(--tm-red-ink); }

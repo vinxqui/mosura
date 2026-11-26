@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <script src="supabase-config.js"></script>
+  <script src="gtg-db.js"></script>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Feedback Summary · GTG Fitness</title>
+<meta name="description" content="GTG Fitness owner area — ratings and comments from members." />
+
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Anton&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+<link href="https://fonts.googleapis.com/css2?family=BBH+Bogle&display=swap" rel="stylesheet" />
+
+<!-- app.css first, page CSS second so the page rules win -->
+<link rel="stylesheet" href="app.css?v=30" />
+<link rel="stylesheet" href="ownerpages.css" />
+</head>
+<body>
+
+<!-- No "app-shell--with-aside": this page has no right-hand aside, so that class would leave an empty column -->
+<div class="app-shell">
+
+  <header class="app-topbar">
+    <a href="ownerdashboard.html" class="app-topbar__logo">GTG FITNESS</a>
+    <details class="settings-menu">
+      <summary class="app-topbar__settings" aria-label="Settings">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+          <circle cx="12" cy="12" r="3"></circle>
+          <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.6a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9c.14.32.44.55.8.66.34.11.65.36.8.66"></path>
+        </svg>
+      </summary>
+      <div class="settings-panel">
+        <div class="settings-panel__profile">
+          <img src="https://images.unsplash.com/photo-1531123897727-8f129e1688ce?auto=format&fit=crop&w=100&q=80" alt="" />
+          <div>
+            <p class="settings-panel__profile-name">Santos, Rue</p>
+            <p class="settings-panel__profile-sub">Admin</p>
+          </div>
+        </div>
+        <a href="edit-profile-owner.html">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+            <path d="M12 20h9"></path>
+            <path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4Z"></path>
+          </svg>
+          Edit Profile
+        </a>
+        <div class="settings-panel__divider"></div>
+        <a href="index.html" class="settings-panel__logout">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+            <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
+            <path d="M16 17l5-5-5-5"></path>
+            <path d="M21 12H9"></path>
+          </svg>
+          Log Out
+        </a>
+      </div>
+    </details>
+  </header>
+
+  <nav class="app-sidebar" aria-label="Main navigation">
+    <ul class="app-nav">
+      <li><a href="ownerdashboard.html">Dashboard</a></li>
+      <li><a href="ownercalendar.html">Calendar</a></li>
+      <li><a href="ownermembermanagement.html">Members Management</a></li>
+      <li><a href="ownerclassmanagement.html">Class Management</a></li>
+      <li><a href="ownertrainermanagement.html">Trainer Management</a></li>
+      <li><a href="owneremployeemanagement.html">Employee Management</a></li>
+      <li class="is-active"><a href="ownerfeedback.html" aria-current="page">Feedback Summary</a></li>
+      <li><a href="ownerperformanceanalytics.html">Performance Analytics</a></li>
+      <li><a href="ownerpaymentmanagement.html"> Payment Management </a></li>
+      <li><a href="ownerequipmentmanagement.html"> Equipment Management </a></li>
+    </ul>
+  </nav>
+
+  <main class="app-main">
+
+    <!-- Shown while the page is locked (and until the role check finishes). Contains no real data. -->
+    <div class="op-skeleton" id="op-skeleton" aria-hidden="true">
+      <div class="op-skel op-skel--title"></div>
+      <div class="op-skel-row"><div class="op-skel"></div><div class="op-skel"></div><div class="op-skel"></div><div class="op-skel"></div></div>
+      <div class="op-skel op-skel--block"></div>
+    </div>
+
+    <div class="op" id="op-content" hidden>
+
+      <div class="op-header">
+        <div>
+          <h1 class="page-title">Feedback Summary</h1>
+          <p class="op-sub">What members are saying about classes, trainers, equipment and the facility.</p>
+        </div>
+      </div>
+
+      <div class="op-stats">
+        <div class="op-card op-stat"><p class="op-stat__label">Average rating</p><p class="op-stat__value" id="fb-avg">–</p></div>
+        <div class="op-card op-stat"><p class="op-stat__label">Total responses</p><p class="op-stat__value" id="fb-total">0</p></div>
+        <div class="op-card op-stat"><p class="op-stat__label">Needs review</p><p class="op-stat__value" id="fb-new">0</p></div>
+        <div class="op-card op-stat"><p class="op-stat__label">Positive (4–5 stars)</p><p class="op-stat__value" id="fb-pos">–</p></div>
+      </div>
+
+      <div class="op-grid2">
+        <section class="op-card" aria-labelledby="fb-dist-title">
+          <div class="op-card__head"><h2 class="op-card__title" id="fb-dist-title">Rating breakdown</h2></div>
+          <div class="op-card__body"><ul class="op-bars" id="fb-dist"></ul></div>
+        </section>
+        <section class="op-card" aria-labelledby="fb-cat-title">
+          <div class="op-card__head"><h2 class="op-card__title" id="fb-cat-title">Average by category</h2></div>
+          <div class="op-card__body"><ul class="op-bars" id="fb-cats"></ul></div>
+        </section>
+      </div>
+
+      <section class="op-card" aria-label="All feedback">
+        <div class="op-toolbar">
+          <label for="fb-search" class="visually-hidden">Search feedback</label>
+          <input type="search" id="fb-search" class="op-search" placeholder="Search comments or members" autocomplete="off" />
+          <label for="fb-category" class="visually-hidden">Filter by category</label>
+          <select id="fb-category" class="op-select">
+            <option value="">All categories</option>
+            <option>Class</option><option>Trainer</option><option>Equipment</option><option>Facility</option>
+          </select>
+          <label for="fb-rating" class="visually-hidden">Filter by rating</label>
+          <select id="fb-rating" class="op-select">
+            <option value="">All ratings</option>
+            <option value="5">5 stars</option><option value="4">4 stars</option><option value="3">3 stars</option>
+            <option value="2">2 stars</option><option value="1">1 star</option>
+          </select>
+          <label for="fb-status" class="visually-hidden">Filter by review status</label>
+          <select id="fb-status" class="op-select">
+            <option value="">All feedback</option>
+            <option value="new">Needs review</option>
+            <option value="done">Reviewed</option>
+          </select>
+        </div>
+        <ul class="op-feed" id="fb-list"></ul>
+        <p class="op-empty" id="fb-empty" hidden></p>
+      </section>
+
+    </div>
+
+  </main>
+
+</div>
+
+<!-- Confirm -->
+<dialog class="op-modal op-modal--sm" id="confirm-modal" aria-labelledby="confirm-title">
+  <div class="op-form">
+    <h2 id="confirm-title" class="op-confirm__title">Are you sure?</h2>
+    <p id="confirm-msg" class="op-confirm__msg"></p>
+    <div class="op-form__actions">
+      <button type="button" class="op-btn op-btn--ghost" id="confirm-cancel">Cancel</button>
+      <button type="button" class="op-btn op-btn--danger" id="confirm-ok">Delete</button>
+    </div>
+  </div>
+</dialog>
+
+<div class="op-toast" id="op-toast" role="status" aria-live="polite" hidden></div>
+
+<script src="auth.js"></script>
+<script src="adminfeedback.js"></script>
+</body>
+</html>

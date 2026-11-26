@@ -1,0 +1,165 @@
+/* GTG Fitness - Edit Class / Add New Class popup (admin + owner).
+   Layout from the sketch: image upload on the left; class name, description and the
+   Session / Month options (number + price, "+ Add") on the right. */
+
+.cm {
+  border: 0;
+  border-radius: 20px;
+  padding: 0;
+  width: min(780px, 94vw);
+  max-height: 92vh;
+  font-family: "Inter", sans-serif;
+  color: #111;
+}
+.cm::backdrop { background: rgba(0, 0, 0, .5); }
+
+.cm__box { padding: 24px 28px 26px; display: flex; flex-direction: column; gap: 18px; }
+
+.cm__head { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+.cm__head h2 { margin: 0; font-size: 1.6rem; font-weight: 700; }
+.cm__close {
+  width: 34px; height: 34px; border: 0; border-radius: 50%;
+  background: #eef1f5; color: #333; font-size: 15px; cursor: pointer;
+}
+.cm__close:hover { background: #e1e6ed; }
+
+.cm__body { display: grid; grid-template-columns: 210px minmax(0, 1fr); gap: 26px; align-items: start; }
+
+/* ---------- image upload (left) ---------- */
+.cm__left { display: flex; flex-direction: column; gap: 8px; }
+.cm__upload {
+  position: relative;
+  display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 8px;
+  width: 100%; aspect-ratio: 1 / 1;
+  border: 2px dashed #9aa6b5; border-radius: 14px;
+  background: #f4f6f8; color: #4a5568;
+  font-weight: 700; font-size: 0.95rem; text-align: center;
+  cursor: pointer; overflow: hidden;
+  transition: background .15s ease, border-color .15s ease;
+}
+.cm__upload:hover { background: #eaeef3; border-color: #163050; }
+.cm__upload:focus-within { outline: 3px solid #7aa7d6; outline-offset: 2px; }
+.cm__upload svg { width: 34px; height: 34px; }
+.cm__upload img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+.cm__upload img[hidden] { display: none; }
+.cm__upload.has-image { border-style: solid; border-color: #d5dae1; }
+.cm__upload.has-image .cm__upload-hint { display: none; }
+.cm__link {
+  align-self: center; padding: 2px 6px; border: 0; background: none;
+  color: #1f4670; font-weight: 600; font-size: 0.85rem; text-decoration: underline; cursor: pointer;
+}
+.cm__link[hidden] { display: none; }
+
+/* ---------- fields (right) ---------- */
+.cm__right { display: flex; flex-direction: column; gap: 14px; min-width: 0; }
+.cm__field { display: flex; flex-direction: column; gap: 6px; min-width: 0; }
+.cm__field > label, .cm__label { font-size: 0.95rem; font-weight: 700; }
+.cm__field input[type="text"], .cm__field textarea {
+  width: 100%; box-sizing: border-box; padding: 9px 11px;
+  border: 1px solid #c3cad5; border-radius: 8px; background: #fff;
+  font: inherit; font-size: 0.95rem; color: #111;
+}
+.cm__field textarea {
+  resize: none;               /* no drag handle: it scrolls instead */
+  height: 92px;
+  overflow-y: scroll;         /* always-visible scroll bar */
+  scrollbar-width: thin;
+  scrollbar-color: #9aa6b5 #eef1f5;
+}
+.cm__field textarea::-webkit-scrollbar { width: 10px; }
+.cm__field textarea::-webkit-scrollbar-track { background: #eef1f5; border-radius: 8px; margin: 6px 0; }
+.cm__field textarea::-webkit-scrollbar-thumb { background: #9aa6b5; border-radius: 8px; border: 2px solid #eef1f5; }
+.cm__field textarea::-webkit-scrollbar-thumb:hover { background: #163050; }
+.cm input:focus-visible, .cm textarea:focus-visible { outline: 2px solid #163050; outline-offset: 1px; }
+
+/* Option: Session | Month */
+.cm__seg { display: inline-flex; align-self: flex-start; padding: 3px; border-radius: 999px; background: #eef1f5; }
+.cm__seg button {
+  padding: 7px 20px; border: 0; border-radius: 999px; background: transparent;
+  font: inherit; font-size: 0.9rem; font-weight: 700; color: #4a5568; cursor: pointer;
+}
+.cm__seg button[aria-selected="true"] { background: #163050; color: #fff; }
+.cm__seg button:focus-visible { outline: 3px solid #7aa7d6; outline-offset: 2px; }
+
+/* list of options: scrolls when it gets long */
+.cm__options {
+  display: flex; flex-direction: column; gap: 8px;
+  max-height: 172px; overflow-y: auto;
+  padding: 10px; border: 1px solid #e3e6eb; border-radius: 12px; background: #fafbfc;
+}
+.cm__empty { margin: 4px 2px; color: #6b7280; font-size: 0.88rem; }
+.cm__opt { display: grid; grid-template-columns: auto minmax(0, 1fr) 32px; gap: 10px; align-items: center; }
+.cm__qty, .cm__price { display: flex; align-items: center; gap: 8px; font-size: 0.9rem; font-weight: 600; }
+.cm__qty input, .cm__price input {
+  box-sizing: border-box; padding: 8px 9px; border: 1px solid #c3cad5; border-radius: 8px;
+  background: #fff; font: inherit; font-size: 0.92rem;
+}
+.cm__qty input { width: 64px; text-align: center; }
+.cm__qty span { min-width: 62px; }
+.cm__price input { width: 100%; min-width: 0; }
+.cm__price span { white-space: nowrap; color: #4a5568; }
+.cm__x {
+  width: 32px; height: 32px; border: 0; border-radius: 50%;
+  background: transparent; color: #9a2432; font-size: 14px; cursor: pointer;
+}
+.cm__x:hover { background: #fbe3e6; }
+
+.cm__add {
+  align-self: flex-start; padding: 8px 16px; border: 1.5px dashed #163050; border-radius: 999px;
+  background: #fff; color: #163050; font: inherit; font-size: 0.9rem; font-weight: 700; cursor: pointer;
+}
+.cm__add:hover { background: #eef3f9; }
+.cm__hint { margin: 0; color: #6b7280; font-size: 0.82rem; }
+
+/* ---------- footer ---------- */
+.cm__foot { display: flex; align-items: center; justify-content: flex-end; gap: 10px; flex-wrap: wrap; }
+.cm__foot .cm__delete {
+  margin-right: auto; padding: 11px 22px; border: 1.5px solid #e1b3b9; border-radius: 999px;
+  background: #fff; color: #a11d31; font: inherit; font-weight: 700; cursor: pointer;
+}
+.cm__foot .cm__delete:hover { background: #fbe3e6; }
+.cm__foot .cm__delete[hidden] { display: none; }
+.cm__foot .btn { padding: 11px 26px; }
+.cm__error { margin: 0; color: #a11d31; font-size: 0.88rem; font-weight: 600; }
+.cm__error[hidden] { display: none; }
+
+@media (max-width: 640px) {
+  .cm__body { grid-template-columns: minmax(0, 1fr); }
+  .cm__left { max-width: 220px; }
+  .cm__opt { grid-template-columns: minmax(0, 1fr) 32px; }
+  .cm__opt .cm__price { grid-column: 1 / 2; }
+}
+
+/* ---------- arrow on each class card (admin + owner) ---------- */
+.classes-grid .cm-arrow {
+  position: absolute; right: 8px; top: 50%; transform: translateY(-50%);
+  display: grid; place-items: center;
+  width: 30px; height: 30px; padding: 0;
+  border: 0; border-radius: 50%; background: transparent; color: #111; cursor: pointer;
+}
+.classes-grid .cm-arrow:hover { background: #eef2f7; }
+.classes-grid .cm-arrow:focus-visible { outline: 3px solid #7aa7d6; outline-offset: 2px; }
+.cm-arrow svg { width: 22px; height: 22px; transition: transform .2s ease; }
+.class-card.is-open .cm-arrow svg { transform: rotate(180deg); }
+
+.cm-info { display: none; }
+.classes-grid .class-card.is-open { flex: 0 0 470px; width: 470px; max-width: 470px; padding-right: 220px; }
+.class-card.is-open .cm-info {
+  display: block; position: absolute; top: 0.6rem; bottom: 0.8rem; right: 46px; width: 160px;
+  box-sizing: border-box; padding: 10px 12px; overflow-y: auto;
+  background: #f4f6f8; border-radius: 12px; text-align: left;
+  font-size: 0.85rem; color: #111;
+}
+.cm-info h3 { margin: 0 0 4px; font-size: 0.72rem; letter-spacing: .06em; text-transform: uppercase; color: #6b7280; }
+.cm-info h3:not(:first-child) { margin-top: 10px; }
+.cm-info ul { margin: 0; padding: 0; list-style: none; display: flex; flex-direction: column; gap: 4px; }
+.cm-info li { font-weight: 600; }
+.cm-info p { margin: 0; color: #6b7280; }
+
+/* tablet / phone: cards are a grid, the arrow sits over the photo and the prices open below */
+@media (max-width: 980px) {
+  .classes-grid .cm-arrow { top: auto; bottom: 62px; transform: none; right: 14px; background: rgba(255,255,255,.9); box-shadow: 0 1px 4px rgba(0,0,0,.25); }
+  .classes-grid .class-card.is-open { grid-column: 1 / -1; width: auto; max-width: none; flex: none; padding-right: 0.6rem; }
+  .class-card.is-open .cm-info { position: static; width: 100%; margin: 0.6rem 0; }
+  .class-card.is-open .cm-arrow svg { transform: rotate(90deg); }
+}

@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <script src="supabase-config.js"></script>
+  <script src="gtg-db.js"></script>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Member Management · GTG Fitness</title>
+<meta name="description" content="GTG Fitness admin dashboard — manage classes and see how many members are subscribed to each." />
+
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Anton&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+<link href="https://fonts.googleapis.com/css2?family=BBH+Bogle&display=swap" rel="stylesheet" />
+
+<!-- app.css first, page CSS second so the page rules win -->
+<link rel="stylesheet" href="app.css?v=30" />
+<link rel="stylesheet" href="adminmembermanagement.css?v=2" />
+</head>
+<body>
+
+<!-- No "app-shell--with-aside": this page has no right-hand aside, so that class would leave an empty column -->
+<div class="app-shell">
+
+  <header class="app-topbar">
+    <a href="admindashboard.html" class="app-topbar__logo">GTG FITNESS</a>
+    <details class="settings-menu">
+      <summary class="app-topbar__settings" aria-label="Settings">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+          <circle cx="12" cy="12" r="3"></circle>
+          <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.6a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9c.14.32.44.55.8.66.34.11.65.36.8.66"></path>
+        </svg>
+      </summary>
+      <div class="settings-panel">
+        <div class="settings-panel__profile">
+          <img src="https://images.unsplash.com/photo-1531123897727-8f129e1688ce?auto=format&fit=crop&w=100&q=80" alt="" />
+          <div>
+            <p class="settings-panel__profile-name">Santos, Rue</p>
+            <p class="settings-panel__profile-sub">Admin</p>
+          </div>
+        </div>
+        <a href="edit-profile-admin.html">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+            <path d="M12 20h9"></path>
+            <path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4Z"></path>
+          </svg>
+          Edit Profile
+        </a>
+        <div class="settings-panel__divider"></div>
+        <a href="index.html" class="settings-panel__logout">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+            <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
+            <path d="M16 17l5-5-5-5"></path>
+            <path d="M21 12H9"></path>
+          </svg>
+          Log Out
+        </a>
+      </div>
+    </details>
+  </header>
+
+  <nav class="app-sidebar" aria-label="Main navigation">
+    <ul class="app-nav">
+      <li><a href="admindashboard.html">Dashboard</a></li>
+      <li><a href="admincalendar.html">Calendar</a></li>
+      <li class="is-active"><a href="adminmembermanagement.html" aria-current="page">Members Management</a></li>
+      <li><a href="adminclassmanagement.html">Class Management</a></li>
+      <li><a href="admintrainermanagement.html">Trainer Management</a></li>
+    </ul>
+  </nav>
+
+  <main class="app-main">
+    <section class="mm" aria-labelledby="mm-title">
+
+      <div class="mm-header">
+        <div>
+          <h1 class="page-title" id="mm-title">Classes</h1>
+          <p class="mm-summary" id="mm-summary" aria-live="polite"></p>
+        </div>
+
+        <div class="mm-tools">
+          <div class="mm-searchbox">
+            <label for="mm-search" class="visually-hidden">Search classes</label>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="11" cy="11" r="7"></circle><path d="m20 20-3.5-3.5"></path></svg>
+            <input type="search" id="mm-search" class="mm-search" placeholder="Search classes" autocomplete="off" />
+          </div>
+          <button type="button" class="mm-addbtn" id="add-class-btn">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" aria-hidden="true"><path d="M12 5v14"></path><path d="M5 12h14"></path></svg>
+            <span>Add Class</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Rows are built by adminmembermanagement.js -->
+      <ul class="mm-list" id="mm-list"></ul>
+      <p class="mm-empty" id="mm-empty" hidden></p>
+
+    </section>
+  </main>
+
+</div>
+
+<!-- Add class modal -->
+<dialog class="mm-modal" id="class-modal" aria-labelledby="class-modal-title">
+  <form class="mm-form" id="class-form" novalidate>
+
+    <div class="mm-form__header">
+      <h2 id="class-modal-title">Add New Class</h2>
+      <button type="button" id="close-class-modal" class="mm-form__close" aria-label="Close">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M18 6 6 18"></path><path d="m6 6 12 12"></path></svg>
+      </button>
+    </div>
+
+    <div class="mm-field">
+      <span class="mm-label" id="class-photo-label">Class photo <span class="mm-optional">(optional)</span></span>
+      <div class="mm-photo">
+        <div class="mm-photo__preview" id="class-photo-preview">
+          <img alt="" hidden />
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <rect x="3" y="5" width="18" height="14" rx="2"></rect>
+            <circle cx="9" cy="11" r="2"></circle>
+            <path d="m21 16-5-5-8 8"></path>
+          </svg>
+        </div>
+        <div class="mm-photo__actions">
+          <button type="button" class="mm-btn mm-btn--ghost" id="class-photo-pick" aria-describedby="class-photo-label">Choose photo</button>
+          <button type="button" class="mm-btn mm-btn--link" id="class-photo-clear" hidden>Remove</button>
+          <p class="mm-hint">PNG or JPG, up to 5 MB.</p>
+        </div>
+        <input type="file" id="class-photo" accept="image/*" class="visually-hidden" tabindex="-1" />
+      </div>
+    </div>
+
+    <div class="mm-field">
+      <label class="mm-label" for="class-name">Class name</label>
+      <input type="text" id="class-name" class="mm-input" placeholder="e.g. Pilates" maxlength="30" autocomplete="off" required />
+    </div>
+
+    <p class="mm-form__error" id="class-error" role="alert" hidden></p>
+
+    <div class="mm-form__actions">
+      <button type="button" class="mm-btn mm-btn--ghost" id="cancel-class">Cancel</button>
+      <button type="submit" class="mm-btn mm-btn--primary">Save class</button>
+    </div>
+
+  </form>
+</dialog>
+
+<script src="adminmembermanagement.js"></script>
+<script src="auth.js"></script>
+</body>
+</html>

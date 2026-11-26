@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <script src="supabase-config.js"></script>
+  <script src="gtg-db.js"></script>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Payment · GTG Fitness</title>
+<meta name="description" content="Your payment history and payment status." />
+
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Anton&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+<link href="https://fonts.googleapis.com/css2?family=BBH+Bogle&display=swap" rel="stylesheet" />
+
+<link rel="stylesheet" href="app.css?v=30" />
+<link rel="stylesheet" href="payment-history.css?v=6" />
+</head>
+<body>
+
+<div class="app-shell">
+
+  <header class="app-topbar">
+    <a href="memberdashboard.html" class="app-topbar__logo">GTG FITNESS</a>
+    <details class="settings-menu">
+      <summary class="app-topbar__settings" aria-label="Settings">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+          <circle cx="12" cy="12" r="3"></circle>
+          <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.6a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9c.14.32.44.55.8.66.34.11.65.36.8.66"></path>
+        </svg>
+      </summary>
+      <div class="settings-panel">
+        <div class="settings-panel__profile">
+          <img src="https://images.unsplash.com/photo-1544005313-94ddf0286df2?auto=format&fit=crop&w=100&q=80" alt="" />
+          <div>
+            <p class="settings-panel__profile-name">Madriaga, Rafaela</p>
+            <p class="settings-panel__profile-sub">Member</p>
+          </div>
+        </div>
+        <a href="edit-profile.html">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+            <path d="M12 20h9"></path>
+            <path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4Z"></path>
+          </svg>
+          Edit Profile
+        </a>
+        <div class="settings-panel__divider"></div>
+        <a href="index.html" class="settings-panel__logout">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+            <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
+            <path d="M16 17l5-5-5-5"></path>
+            <path d="M21 12H9"></path>
+          </svg>
+          Log Out
+        </a>
+      </div>
+    </details>
+  </header>
+
+  <nav class="app-sidebar" aria-label="Main navigation">
+    <ul class="app-nav">
+      <li><a href="memberdashboard.html">Dashboard</a></li>
+      <li><a href="calendar.html">Calendar</a></li>
+      <li><a href="classes.html">Classes</a></li>
+      <li><a href="trainers.html">Trainers</a></li>
+      <li><a href="equipment.html">Equipment</a></li>
+      <li class="is-active"><a href="payment.html" aria-current="page">Payment</a></li>
+      <li><a href="feedback.html">Feedback</a></li>
+    </ul>
+  </nav>
+
+  <main class="app-main">
+    <h1 class="page-title">Payment</h1>
+    <p class="page-subtitle">Your payment history and the status of each payment.</p>
+
+    <div class="dashboard-grid">
+
+      <div class="stack">
+        <section class="card" aria-labelledby="enrolled-heading">
+          <h2 id="enrolled-heading" class="card-heading">Classes you Enrolled</h2>
+          <label for="subscribed-classes" class="visually-hidden">Subscribed classes</label>
+          <select id="subscribed-classes" class="select-native">
+            <option>Muay Thai</option>
+            <option>Taekwondo</option>
+          </select>
+        </section>
+
+        <section class="card payment-history" aria-labelledby="payments-heading">
+          <h2 id="payments-heading" class="card-heading">Payment History <span class="badge-count" id="payment-count">0</span></h2>
+          <div class="pay-filters" aria-label="Filter payment history">
+            <label class="visually-hidden" for="history-month">Month</label>
+            <select id="history-month" class="select-native"></select>
+            <label class="visually-hidden" for="history-year">Year</label>
+            <select id="history-year" class="select-native"></select>
+          </div>
+          <p class="payment-history__class" id="payment-class"></p>
+          <p class="payment-summary" id="payment-summary"></p>
+          <ul class="payment-list" id="payment-list" aria-live="polite"></ul>
+        </section>
+      </div>
+
+      <div class="stack">
+        <section class="card" aria-labelledby="status-heading">
+          <div class="status-head">
+            <h2 id="status-heading">Payment Status</h2>
+            <div class="status-actions">
+              <a class="btn btn-navy" href="classes.html">Book a Session</a>
+              <a class="btn btn-navy" href="equipment.html">Get Equipment</a>
+            </div>
+          </div>
+          <div class="pay-filters" aria-label="Filter payments">
+            <label class="visually-hidden" for="status-month">Month</label>
+            <select id="status-month" class="select-native"></select>
+            <label class="visually-hidden" for="status-year">Year</label>
+            <select id="status-year" class="select-native"></select>
+            <label class="visually-hidden" for="status-category">Category</label>
+            <select id="status-category" class="select-native"></select>
+          </div>
+          <!-- Filled by payment-history.js: every payment waiting for the owner (pending / rejected) -->
+          <div id="status-card" aria-live="polite"></div>
+        </section>
+      </div>
+
+    </div>
+  </main>
+
+</div>
+
+<script src="shell.js"></script>
+<script src="payment-store.js?v=3"></script>
+<script src="paymentstatus.js?v=1"></script>
+<script src="payment-history.js?v=7"></script>
+</body>
+</html>

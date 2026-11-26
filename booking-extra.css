@@ -1,0 +1,70 @@
+/* Extra styles for the Booking Date side panel */
+
+/* class the member enrolled in: shown but cannot be changed */
+.sched-fixed {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.6rem;
+  padding: 0.5rem 0.8rem;
+  border-radius: 8px;
+  border: 1px solid var(--border-soft);
+  background: #ececea;
+  color: var(--text-dark);
+  font-weight: 600;
+  font-size: 0.82rem;
+  cursor: default;
+  user-select: none;
+}
+.sched-fixed svg { width: 15px; height: 15px; flex: none; color: #7a7a78; }
+
+/* hint under "Time Available" */
+.sched-times-note { margin: 0; font-size: 0.78rem; color: #8a8a88; }
+.sched-times-note--center { text-align: center; margin-bottom: 1rem; }
+
+/* booking details: one bullet per line, label on the left, value aligned to the right */
+.sched-details {
+  list-style: none;
+  margin: 0 0 1rem;
+  padding: 0;
+  line-height: 1.8;
+  font-weight: 500;
+}
+.sched-details li { display: flex; gap: 0.5rem; align-items: baseline; }
+.sched-details li::before { content: "\2022"; flex: none; }
+.sched-details__label { flex: 1; }
+.sched-details__value { text-align: right; }
+.sched-details__strong { font-weight: 700; }
+
+/* Payment status strip above the booking calendar */
+.pay-banner {
+  display: flex;
+  flex-direction: column;     /* title, caption, then the button underneath */
+  align-items: flex-start;
+  gap: 6px;
+  margin: 0 0 1rem;
+  padding: 0.9rem 1.1rem;
+  border-radius: 10px;
+  font-size: 0.88rem;
+  line-height: 1.4;
+  background: #fdf0cf;
+  color: #7a5600;
+}
+.pay-banner--verified { background: #d9f2e0; color: #1d6a35; }
+.pay-banner--rejected { background: #fbdcdc; color: #a3261c; }
+.pay-banner strong { white-space: nowrap; }
+.pay-banner strong { font-size: 0.95rem; }
+.pay-banner__btn {
+  display: inline-block;
+  margin-top: 6px;
+  padding: 8px 18px;
+  border-radius: 999px;
+  background: #163050;
+  color: #fff;
+  font-weight: 700;
+  font-size: 0.85rem;
+  text-decoration: none;
+  transition: background .15s ease;
+}
+.pay-banner__btn:hover { background: #1f4670; }
+.pay-banner__btn:focus-visible { outline: 3px solid #7aa7d6; outline-offset: 2px; }

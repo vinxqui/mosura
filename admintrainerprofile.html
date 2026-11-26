@@ -1,0 +1,778 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <script src="supabase-config.js"></script>
+  <script src="gtg-db.js"></script>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Trainer Profile · GTG Fitness</title>
+<meta name="description" content="GTG Fitness admin — edit a trainer profile and manage their gym schedule." />
+
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Anton&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+<link href="https://fonts.googleapis.com/css2?family=BBH+Bogle&display=swap" rel="stylesheet" />
+
+<link rel="stylesheet" href="app.css?v=12" />
+<style>
+/* GTG Fitness – Trainer profile page (admin) */
+.tm-page {
+  --tm-navy: #16324f;
+  --tm-navy-2: #1f4670;
+  --tm-green: #2fae48;
+  --tm-green-bg: #dff5e3;
+  --tm-green-ink: #1b7a31;
+  --tm-red: #c4243a;
+  --tm-red-bg: #fbe3e6;
+  --tm-red-ink: #a11d31;
+  --tm-line: #e3e6eb;
+  --tm-muted: #5b6472;
+  font-family: "Inter", sans-serif;
+}
+
+/* ---------- buttons ---------- */
+.tm-btn {
+  display: inline-block;
+  text-decoration: none;
+  line-height: 1.2;
+  font-family: "Inter", sans-serif;
+  font-size: 14px;
+  font-weight: 600;
+  padding: 9px 16px;
+  border-radius: 8px;
+  border: 1px solid transparent;
+  cursor: pointer;
+  transition: background .15s ease;
+}
+.tm-btn--primary { background: var(--tm-navy); color: #fff; }
+.tm-btn--primary:hover { background: var(--tm-navy-2); }
+.tm-btn--ghost { background: #fff; color: var(--tm-navy); border-color: #c3cad5; }
+.tm-btn--ghost:hover { background: #f1f4f8; }
+.tm-btn--danger { background: #fff; color: var(--tm-red); border-color: #e8b4bb; margin-right: auto; }
+.tm-btn--danger:hover { background: var(--tm-red-bg); }
+.tm-btn:focus-visible,
+.tm-card__toggle:focus-visible,
+.tm-cal__day:focus-visible,
+.tm-cal__nav button:focus-visible { outline: 3px solid #7aa7d6; outline-offset: 2px; }
+
+
+/* ---------- header with plain "Back" link ---------- */
+.tp-head { display: flex; align-items: center; flex-wrap: wrap; gap: 18px; margin-bottom: 16px; }
+.tp-head .page-title { margin: 0; }
+.tp-back {
+  font-family: "Inter", sans-serif;
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--tm-navy);
+  text-decoration: none;
+}
+.tp-back:hover { text-decoration: underline; }
+.tp-back:focus-visible { outline: 3px solid #7aa7d6; outline-offset: 3px; border-radius: 4px; }
+
+/* ---------- layout: profile form left, availability right ---------- */
+.tp-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 440px) minmax(0, 1fr);
+  gap: 18px;
+  align-items: start;
+  max-width: 1180px;
+}
+.tp-card {
+  min-width: 0;
+  padding: 20px;
+  background: #fff;
+  border-radius: 18px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, .08);
+}
+.tp-form {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 14px 16px;
+}
+.tp-form .tm-panel__title { grid-column: 1 / -1; }
+
+.tp-photo { grid-column: 1 / -1; display: flex; align-items: center; gap: 14px; }
+.tp-preview {
+  flex: none;
+  width: 92px;
+  height: 92px;
+  border-radius: 12px;
+  object-fit: cover;
+  background: #e5e7eb;
+}
+.tp-photo__ctl { flex: 1; min-width: 0; display: flex; flex-direction: column; align-items: flex-start; gap: 8px; }
+
+.tm-field { display: flex; flex-direction: column; gap: 6px; min-width: 0; }
+.tm-field--wide { grid-column: 1 / -1; }
+.tm-field label, .tm-label { font-size: 13px; font-weight: 600; }
+
+.tm-input {
+  width: 100%;
+  box-sizing: border-box;
+  padding: 9px 11px;
+  border: 1px solid #c3cad5;
+  border-radius: 8px;
+  background: #fff;
+  font-family: "Inter", sans-serif;
+  font-size: 14px;
+  color: #111;
+}
+textarea.tm-input { resize: vertical; }
+.tm-input:focus-visible { outline: 2px solid var(--tm-navy); outline-offset: 1px; }
+
+.tm-chips { display: flex; flex-wrap: wrap; gap: 8px; }
+.tm-pick { position: relative; }
+.tm-pick input { position: absolute; opacity: 0; width: 1px; height: 1px; }
+.tm-pick span {
+  display: inline-block;
+  padding: 6px 12px;
+  border: 1px solid #c3cad5;
+  border-radius: 999px;
+  background: #fff;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+}
+.tm-pick input:checked + span { background: var(--tm-navy); border-color: var(--tm-navy); color: #fff; }
+.tm-pick input:focus-visible + span { outline: 3px solid #7aa7d6; outline-offset: 2px; }
+
+.tm-popup__error { grid-column: 1 / -1; margin: 0; color: var(--tm-red); font-size: 13px; font-weight: 600; }
+.tp-actions { grid-column: 1 / -1; display: flex; flex-wrap: wrap; justify-content: flex-end; gap: 10px; margin-top: 4px; }
+
+
+.tm-panel__title { margin: 0; font-family: "Anton", "Inter", sans-serif; font-size: 20px; font-weight: 400; }
+.tm-chip { display: inline-block; padding: 4px 10px; border-radius: 999px; font-size: 12px; font-weight: 600; white-space: nowrap; }
+.tm-chip--on { background: var(--tm-green-bg); color: var(--tm-green-ink); }
+.tm-chip--off { background: var(--tm-red-bg); color: var(--tm-red-ink); }
+
+/* ---------- absence calendar (same look as the member calendar) ---------- */
+.ab-cal { margin-top: 14px; }
+.ab-pick {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 6px 12px;
+  margin-bottom: 14px;
+  background: #eef0f5;
+  border-radius: 999px;
+}
+.ab-select {
+  border: 0;
+  background-color: transparent;
+  font-family: "Inter", sans-serif;
+  font-size: 16px;
+  font-weight: 700;
+  color: #111;
+  cursor: pointer;
+}
+.ab-select:focus-visible { outline: 2px solid var(--tm-navy); border-radius: 6px; }
+
+.ab-grid {
+  display: grid;
+  grid-template-columns: repeat(7, minmax(0, 1fr));
+  border-top: 1px solid #a8a8a8;
+  border-left: 1px solid #a8a8a8;
+}
+.ab-dow {
+  padding: 10px 8px;
+  border-right: 1px solid #a8a8a8;
+  border-bottom: 1px solid #a8a8a8;
+  background: #fff;
+  font-size: 13px;
+  font-weight: 700;
+}
+.ab-cell {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  justify-content: space-between;
+  min-height: 78px;
+  padding: 8px;
+  border: 0;
+  border-right: 1px solid #a8a8a8;
+  border-bottom: 1px solid #a8a8a8;
+  border-radius: 0;
+  background: #fff;
+  font-family: "Inter", sans-serif;
+  font-size: 14px;
+  font-weight: 700;
+  color: #111;
+  text-align: right;
+}
+button.ab-cell { cursor: pointer; }
+.ab-cell--blank { background: #fff; }
+.ab-cell.is-free { background: #dff1e1; }
+.ab-cell.is-absent { background: #fbdada; }
+.ab-cell.is-off { background: #f4f4f5; color: #6b7280; }
+button.ab-cell:hover { filter: brightness(.97); }
+.ab-cell.is-selected { outline: 3px solid #3962a7; outline-offset: -3px; }
+.ab-cell.is-today .ab-num { text-decoration: underline; }
+.ab-badge {
+  align-self: flex-start;
+  padding: 2px 9px;
+  border-radius: 999px;
+  background: #b3261e;
+  color: #fff;
+  font-size: 11px;
+  font-weight: 700;
+}
+.ab-dayoff { align-self: flex-start; font-size: 11px; font-weight: 600; color: #6b7280; }
+
+.ab-legend { display: flex; flex-wrap: wrap; gap: 18px; margin-top: 14px; font-size: 14px; font-weight: 600; }
+.ab-legend__item::before {
+  content: "";
+  display: inline-block;
+  width: 18px;
+  height: 18px;
+  margin-right: 8px;
+  border: 1px solid #a8a8a8;
+  border-radius: 4px;
+  vertical-align: -4px;
+}
+.ab-legend__item--free::before { background: #dff1e1; }
+.ab-legend__item--absent::before { background: #fbdada; }
+.ab-legend__item--off::before { background: #f4f4f5; }
+.ab-hint { margin: 10px 0 0; text-align: right; color: var(--tm-muted); font-size: 13px; }
+
+/* ---------- reason + proof for the selected date ---------- */
+.ab-detail { margin-top: 18px; padding-top: 16px; border-top: 2px solid #111; }
+.ab-detail__date { margin: 0 0 10px; font-size: 17px; font-weight: 700; }
+.ab-detail__none { margin: 0; color: var(--tm-muted); font-size: 15px; font-weight: 600; }
+.ab-req { padding: 12px 14px; margin-bottom: 10px; background: #fafbfc; border: 1px solid var(--tm-line); border-radius: 12px; }
+.ab-req p { margin: 0; }
+.ab-req__when { margin-bottom: 6px !important; }
+.ab-req__meta { margin-bottom: 6px !important; color: var(--tm-muted); font-size: 13px; }
+.ab-req__label { margin-top: 10px !important; font-size: 13px; font-weight: 700; }
+.ab-req__reason { margin-top: 4px !important; color: #333; font-size: 14px; line-height: 1.5; overflow-wrap: anywhere; }
+.ab-proof {
+  display: block;
+  max-width: 100%;
+  max-height: 240px;
+  margin-top: 6px;
+  border-radius: 10px;
+  border: 1px solid var(--tm-line);
+  cursor: zoom-in;
+}
+.ab-lightbox {
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  display: grid;
+  place-items: center;
+  padding: 24px;
+  background: rgba(0, 0, 0, .78);
+  cursor: zoom-out;
+}
+.ab-lightbox img { max-width: 100%; max-height: 100%; border-radius: 10px; background: #fff; }
+
+/* ---------- smaller screens ---------- */
+@media (max-width: 980px) { .tp-layout { grid-template-columns: minmax(0, 1fr); } }
+@media (max-width: 520px) { .tp-form { grid-template-columns: minmax(0, 1fr); } .ab-cell { min-height: 56px; padding: 5px; } }
+</style>
+</head>
+<body>
+
+<div class="app-shell">
+
+  <header class="app-topbar">
+    <a href="admindashboard.html" class="app-topbar__logo">GTG FITNESS</a>
+    <details class="settings-menu">
+      <summary class="app-topbar__settings" aria-label="Settings">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+          <circle cx="12" cy="12" r="3"></circle>
+          <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.6a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9c.14.32.44.55.8.66.34.11.65.36.8.66"></path>
+        </svg>
+      </summary>
+      <div class="settings-panel">
+        <div class="settings-panel__profile">
+          <img src="https://images.unsplash.com/photo-1531123897727-8f129e1688ce?auto=format&fit=crop&w=100&q=80" alt="" />
+          <div>
+            <p class="settings-panel__profile-name">Santos, Rue</p>
+            <p class="settings-panel__profile-sub">Admin</p>
+          </div>
+        </div>
+        <a href="edit-profile-admin.html">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+            <path d="M12 20h9"></path>
+            <path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4Z"></path>
+          </svg>
+          Edit Profile
+        </a>
+        <div class="settings-panel__divider"></div>
+        <a href="index.html" class="settings-panel__logout">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+            <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
+            <path d="M16 17l5-5-5-5"></path>
+            <path d="M21 12H9"></path>
+          </svg>
+          Log Out
+        </a>
+      </div>
+    </details>
+  </header>
+
+  <nav class="app-sidebar" aria-label="Main navigation">
+    <ul class="app-nav">
+      <li><a href="admindashboard.html">Dashboard</a></li>
+      <li><a href="admincalendar.html">Calendar</a></li>
+      <li><a href="adminmembermanagement.html">Members Management</a></li>
+      <li><a href="adminclassmanagement.html">Class Management</a></li>
+      <li class="is-active"><a href="admintrainermanagement.html" aria-current="page">Trainer Management</a></li>
+    </ul>
+  </nav>
+
+
+  <main class="app-main">
+    <div class="tm-page">
+
+      <div class="tp-head">
+        <a href="admintrainermanagement.html" class="tp-back">&larr; Back</a>
+        <h1 class="page-title" id="tp-title">Trainer Profile</h1>
+      </div>
+
+      <!-- Profile form and availability calendar are built by the script below -->
+      <div id="tp-root"></div>
+
+    </div>
+  </main>
+
+</div>
+
+<script>
+/* GTG Fitness – Trainer profile (admin)
+   Opened from Trainer Management:
+     admintrainerprofile.html?id=<trainer id>   edit an existing trainer
+     admintrainerprofile.html?new=1             add a new trainer
+   Left: the profile form.  Right: calendar of the days the trainer is NOT available,
+   with the reason and proof they gave when they requested the absence.
+
+   Absence requests are read from localStorage "gtg_trainer_absences" (see readAbsences below)
+   and the older plain days-off list "gtg_trainer_daysoff". */
+(function () {
+  'use strict';
+
+  var BACK = 'admintrainermanagement.html';
+  var STORAGE_KEY = 'gtg_trainers';
+  var CATEGORIES = ['Yoga', 'Zumba', 'Taekwondo', 'Muay Thai', 'Boxing', 'Gym'];
+  var DAY_NAMES = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+  var DAY_NAMES_LONG = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+  var MONTHS = ['January', 'February', 'March', 'April', 'May', 'June', 'July',
+                'August', 'September', 'October', 'November', 'December'];
+  var FIRST_HOUR = 5;   // schedule strip shows 5 AM ...
+  var LAST_HOUR = 21;   // ... to 10 PM
+  var PLACEHOLDER = 'data:image/svg+xml;utf8,' + encodeURIComponent(
+    '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 400">' +
+    '<rect width="400" height="400" fill="#e5e7eb"/>' +
+    '<circle cx="200" cy="155" r="70" fill="#9ca3af"/>' +
+    '<path d="M60 400c0-95 62-150 140-150s140 55 140 150z" fill="#9ca3af"/></svg>');
+
+  var root = document.getElementById('tp-root');
+
+  /* ---------- small helpers ---------- */
+
+  // Builds elements without innerHTML, so typed text can never inject markup.
+  function h(tag, props, kids) {
+    var n = document.createElement(tag);
+    Object.keys(props || {}).forEach(function (k) {
+      var v = props[k];
+      if (v === null || v === undefined || v === false) return;
+      if (k === 'class') n.className = v;
+      else if (k === 'text') n.textContent = v;
+      else if (k === 'value' || k === 'checked') n[k] = v;
+      else if (k.slice(0, 2) === 'on') n.addEventListener(k.slice(2), v);
+      else n.setAttribute(k, v === true ? '' : v);
+    });
+    (kids || []).forEach(function (c) {
+      if (c === null || c === undefined) return;
+      n.appendChild(typeof c === 'string' ? document.createTextNode(c) : c);
+    });
+    return n;
+  }
+  function clear(el) { while (el.firstChild) el.removeChild(el.firstChild); }
+  function pad(n) { return (n < 10 ? '0' : '') + n; }
+  function dateKey(d) { return d.getFullYear() + '-' + pad(d.getMonth() + 1) + '-' + pad(d.getDate()); }
+  function parseKey(k) { var p = k.split('-'); return new Date(+p[0], +p[1] - 1, +p[2]); }
+  function toMin(t) { var p = t.split(':'); return (+p[0]) * 60 + (+p[1]); }
+  function fmtTime(t) {
+    var p = t.split(':'), hr = +p[0];
+    return (((hr + 11) % 12) + 1) + ':' + p[1] + ' ' + (hr < 12 ? 'AM' : 'PM');
+  }
+  function fmtHour(hr) { return (((hr + 11) % 12) + 1) + (hr < 12 ? ' AM' : ' PM'); }
+  function catClass(c) { return 'tag tag--' + c.toLowerCase().replace(/\s+/g, ''); }
+
+  /* ---------- data ---------- */
+
+  function load() {
+    try {
+      var list = JSON.parse(localStorage.getItem(STORAGE_KEY));
+      if (Array.isArray(list)) return list;
+    } catch (e) { /* ignore */ }
+    return [];
+  }
+
+  function persist() {
+    try {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(trainers));
+      return true;
+    } catch (e) {
+      window.alert('Could not save. The browser storage may be full; try a smaller photo.');
+      return false;
+    }
+  }
+
+  var trainers = load();
+  var params = new URLSearchParams(window.location.search);
+  var isNew = params.get('new') === '1';
+  var original = isNew ? null : trainers.filter(function (x) { return x.id === params.get('id'); })[0];
+  var today = new Date();
+
+  if (!isNew && !original) {
+    root.appendChild(h('p', { class: 'trainers-empty', text: 'That trainer could not be found.' }));
+    return;
+  }
+
+  // Work on a copy so nothing changes until "Save changes" is pressed
+  var draft = isNew ? {
+    id: 't' + Date.now(), name: '', photo: '', bio: '', rating: 5, categories: [],
+    email: '', phone: '', weekly: [1, 2, 3, 4, 5], shift: { start: '09:00', end: '17:00' }, overrides: {}
+  } : JSON.parse(JSON.stringify(original));
+  if (!draft.overrides) draft.overrides = {};
+
+
+  /* ---------- absences (what the trainer filled in on their Availability page) ----------
+     localStorage "gtg_trainer_absences" = {
+       "Coach Ken": [ {
+         date: "2026-11-24",          // yyyy-mm-dd
+         allDay: true,                // false = only from..until
+         from: "07:00", until: "12:00",   // 24h "HH:MM" or "7:00 AM"
+         repeatWeekly: false,         // "Set as default: repeat every <weekday>"
+         reason: "Doctor's appointment",
+         proof: "data:image/jpeg;base64,..."   // optional picture (data URL or image link)
+       } ]
+     }
+     "gtg_trainer_daysoff" = { "Coach Ken": ["2026-11-20"] }   // older list, no reason */
+
+  var ABSENCE_KEY = 'gtg_trainer_absences';
+  var DAYSOFF_KEY = 'gtg_trainer_daysoff';
+
+  function readStore(key) {
+    try {
+      var v = JSON.parse(localStorage.getItem(key) || '{}');
+      return v && typeof v === 'object' ? v : {};
+    } catch (e) { return {}; }
+  }
+
+  function readAbsences(t) {
+    var out = [];
+    var all = readStore(ABSENCE_KEY);
+    [t.name, t.id].forEach(function (k) {
+      if (k && Array.isArray(all[k])) all[k].forEach(function (a) { if (a && a.date) out.push(a); });
+    });
+    var off = readStore(DAYSOFF_KEY);
+    [t.name, t.id].forEach(function (k) {
+      if (k && Array.isArray(off[k])) off[k].forEach(function (d) {
+        out.push({ date: d, allDay: true, reason: '', proof: '' });
+      });
+    });
+    return out;
+  }
+
+  var absences = readAbsences(draft);
+
+  // all absence entries that apply to one date (a "repeat every weekday" request covers later weeks too)
+  function absencesOn(key) {
+    var day = parseKey(key);
+    return absences.filter(function (a) {
+      if (a.date === key) return true;
+      if (!a.repeatWeekly) return false;
+      var start = parseKey(a.date);
+      return day > start && day.getDay() === start.getDay();
+    });
+  }
+
+  function timeLabel(v) {
+    if (!v) return '';
+    if (/AM|PM/i.test(v)) return v.toUpperCase().replace(/^0/, '');
+    return /^\d{1,2}:\d{2}$/.test(v) ? fmtTime(v.length === 4 ? '0' + v : v) : v;
+  }
+
+  function isWorkingDay(key) { return draft.weekly.indexOf(parseKey(key).getDay()) !== -1; }
+
+  /* ---------- page ---------- */
+
+  var state = {
+    year: today.getFullYear(),
+    month: today.getMonth(),
+    selected: dateKey(today)
+  };
+
+  var title = document.getElementById('tp-title');
+  title.textContent = isNew ? 'Add Trainer' : 'Edit Trainer Profile';
+  document.title = title.textContent + ' \u00B7 GTG Fitness';
+
+  var calHost = h('div', { class: 'ab-cal' });
+  var detailHost = h('div', { class: 'ab-detail', 'aria-live': 'polite' });
+  var calCard = h('section', { class: 'tp-card', 'aria-label': 'Trainer absences' }, [
+    h('h2', { class: 'tm-panel__title', text: 'Availability' }),
+    calHost,
+    detailHost
+  ]);
+  root.appendChild(h('div', { class: 'tp-layout' }, [buildForm(), calCard]));
+  drawCalendar();
+
+  /* ----- calendar ----- */
+
+  function drawCalendar() {
+    clear(calHost);
+    var y = state.year, m = state.month;
+    var todayKey = dateKey(today);
+
+    // month + year pickers (same look as the member calendar)
+    var monthSel = h('select', { class: 'ab-select', 'aria-label': 'Month' }, MONTHS.map(function (name, i) {
+      var o = h('option', { value: String(i), text: name });
+      if (i === m) o.selected = true;
+      return o;
+    }));
+    var yearSel = h('select', { class: 'ab-select', 'aria-label': 'Year' }, [-1, 0, 1, 2].map(function (d) {
+      var yr = today.getFullYear() + d;
+      var o = h('option', { value: String(yr), text: String(yr) });
+      if (yr === y) o.selected = true;
+      return o;
+    }));
+    monthSel.addEventListener('change', function () { state.month = +monthSel.value; drawCalendar(); });
+    yearSel.addEventListener('change', function () { state.year = +yearSel.value; drawCalendar(); });
+    calHost.appendChild(h('div', { class: 'ab-pick' }, [monthSel, yearSel]));
+
+    var grid = h('div', { class: 'ab-grid' });
+    ['Sun', 'Mon', 'Tue', 'Wed', 'Thurs', 'Fri', 'Sat'].forEach(function (d) {
+      grid.appendChild(h('div', { class: 'ab-dow', text: d }));
+    });
+    var first = new Date(y, m, 1).getDay();
+    for (var b = 0; b < first; b++) grid.appendChild(h('div', { class: 'ab-cell ab-cell--blank', 'aria-hidden': 'true' }));
+
+    var total = new Date(y, m + 1, 0).getDate();
+    for (var d = 1; d <= total; d++) {
+      (function (day) {
+        var key = y + '-' + pad(m + 1) + '-' + pad(day);
+        var list = absencesOn(key);
+        var working = isWorkingDay(key);
+        var cls = 'ab-cell' + (list.length ? ' is-absent' : (working ? ' is-free' : ' is-off')) +
+          (key === state.selected ? ' is-selected' : '') + (key === todayKey ? ' is-today' : '');
+        var kids = [h('span', { class: 'ab-num', text: String(day) })];
+        if (list.length) {
+          var whole = list.some(function (a) { return a.allDay !== false; });
+          kids.push(h('span', { class: 'ab-badge', text: whole ? 'Absent' : 'Part-day' }));
+        } else if (!working) {
+          kids.push(h('span', { class: 'ab-dayoff', text: 'Day off' }));
+        }
+        grid.appendChild(h('button', {
+          type: 'button', class: cls,
+          'aria-label': MONTHS[m] + ' ' + day + (list.length ? ', absent' : (working ? ', available' : ', usual day off')),
+          onclick: function () { state.selected = key; drawCalendar(); }
+        }, kids));
+      })(d);
+    }
+    calHost.appendChild(grid);
+
+    calHost.appendChild(h('div', { class: 'ab-legend' }, [
+      h('span', { class: 'ab-legend__item ab-legend__item--free', text: 'Available' }),
+      h('span', { class: 'ab-legend__item ab-legend__item--absent', text: 'Absent' }),
+      h('span', { class: 'ab-legend__item ab-legend__item--off', text: 'Usual day off' })
+    ]));
+    calHost.appendChild(h('p', { class: 'ab-hint', text: 'Press a date to see the reason and proof.' }));
+    drawDetail();
+  }
+
+  function drawDetail() {
+    clear(detailHost);
+    var key = state.selected;
+    var list = absencesOn(key);
+    var label = parseKey(key).toLocaleDateString('en-PH', { weekday: 'long', month: 'long', day: 'numeric', year: 'numeric' });
+    detailHost.appendChild(h('h3', { class: 'ab-detail__date', text: label }));
+
+    if (!list.length) {
+      detailHost.appendChild(h('p', { class: 'ab-detail__none',
+        text: isWorkingDay(key) ? 'Available. No absence was requested for this day.' : 'Usual day off. No absence was requested for this day.' }));
+      return;
+    }
+
+    list.forEach(function (a) {
+      var when = a.allDay !== false ? 'Not available all day'
+        : 'Not available ' + timeLabel(a.from) + ' \u2013 ' + timeLabel(a.until);
+      var box = h('div', { class: 'ab-req' }, [
+        h('p', { class: 'ab-req__when' }, [h('span', { class: 'tm-chip tm-chip--off', text: when })]),
+        a.repeatWeekly ? h('p', { class: 'ab-req__meta', text: 'Repeats every ' + DAY_NAMES_LONG[parseKey(a.date).getDay()] }) : null,
+        h('p', { class: 'ab-req__label', text: 'Reason' }),
+        h('p', { class: 'ab-req__reason', text: a.reason ? a.reason : 'No reason was given.' }),
+        h('p', { class: 'ab-req__label', text: 'Proof' })
+      ]);
+      if (a.proof) {
+        var img = h('img', { class: 'ab-proof', src: a.proof, alt: 'Proof uploaded by the trainer', title: 'Click to enlarge',
+          onerror: function () { this.replaceWith(h('p', { class: 'ab-req__reason', text: 'The proof image could not be loaded.' })); } });
+        img.addEventListener('click', function () { openLightbox(a.proof); });
+        box.appendChild(img);
+      } else {
+        box.appendChild(h('p', { class: 'ab-req__reason', text: 'No picture was uploaded.' }));
+      }
+      detailHost.appendChild(box);
+    });
+  }
+
+  function openLightbox(src) {
+    var overlay = h('div', { class: 'ab-lightbox', role: 'dialog', 'aria-label': 'Proof image', tabindex: '-1' }, [
+      h('img', { src: src, alt: 'Proof, full size' })
+    ]);
+    function close() { document.removeEventListener('keydown', onKey); overlay.remove(); }
+    function onKey(e) { if (e.key === 'Escape') close(); }
+    overlay.addEventListener('click', close);
+    document.addEventListener('keydown', onKey);
+    document.body.appendChild(overlay);
+    overlay.focus();
+  }
+
+  /* ---------- profile form ---------- */
+
+  function field(labelText, input, wide) {
+    return h('div', { class: 'tm-field' + (wide ? ' tm-field--wide' : '') }, [
+      h('label', { for: input.id, text: labelText }), input
+    ]);
+  }
+
+  function pick(name, value, checked) {
+    var input = h('input', { type: 'checkbox', name: name, value: value, checked: checked });
+    return h('label', { class: 'tm-pick' }, [input, h('span', { text: value })]);
+  }
+
+  function buildForm() {
+    var uid = 'tp-';
+    var t = draft;
+    var draftPhoto = t.photo || '';
+
+    var nameIn = h('input', { class: 'tm-input', id: uid + 'name', type: 'text', maxlength: '40', value: t.name, placeholder: 'e.g. Coach Alex' });
+    var urlIn = h('input', {
+      class: 'tm-input', id: uid + 'photo', type: 'text',
+      value: /^https?:/i.test(draftPhoto) ? draftPhoto : '', placeholder: 'Paste an image link, or upload'
+    });
+    var fileIn = h('input', { type: 'file', accept: 'image/*', class: 'visually-hidden', id: uid + 'file' });
+    var preview = h('img', { class: 'tp-preview', src: draftPhoto || PLACEHOLDER, alt: 'Photo preview',
+      onerror: function () { this.onerror = null; this.src = PLACEHOLDER; } });
+    var bioIn = h('textarea', { class: 'tm-input', id: uid + 'bio', rows: '4', maxlength: '260', value: t.bio, placeholder: 'A short intro members will see' });
+    var ratingIn = h('select', { class: 'tm-input', id: uid + 'rating' }, [5, 4, 3, 2, 1].map(function (n) {
+      var o = h('option', { value: String(n), text: n + (n === 1 ? ' star' : ' stars') });
+      if (n === (t.rating || 5)) o.selected = true;
+      return o;
+    }));
+    var emailIn = h('input', { class: 'tm-input', id: uid + 'email', type: 'email', value: t.email, placeholder: 'name@gtgfitness.com' });
+    var phoneIn = h('input', { class: 'tm-input', id: uid + 'phone', type: 'tel', value: t.phone, placeholder: '09XX XXX XXXX' });
+    var startIn = h('input', { class: 'tm-input', id: uid + 'start', type: 'time', value: t.shift.start });
+    var endIn = h('input', { class: 'tm-input', id: uid + 'end', type: 'time', value: t.shift.end });
+
+    var catBox = h('div', { class: 'tm-chips', role: 'group', 'aria-label': 'Specialties' }, CATEGORIES.map(function (c) {
+      return pick('cat', c, t.categories.indexOf(c) !== -1);
+    }));
+    var dayBox = h('div', { class: 'tm-chips', role: 'group', 'aria-label': 'Working days' }, DAY_NAMES.map(function (d, i) {
+      return pick('day', d, t.weekly.indexOf(i) !== -1);
+    }));
+    var error = h('p', { class: 'tm-popup__error', role: 'alert', hidden: true });
+
+    function showError(msg, focusEl) {
+      error.textContent = msg;
+      error.hidden = false;
+      if (focusEl) focusEl.focus();
+    }
+
+    urlIn.addEventListener('input', function () {
+      draftPhoto = urlIn.value.trim();
+      preview.src = draftPhoto || PLACEHOLDER;
+    });
+
+    // Uploaded photos are shrunk to 400px so they fit in browser storage
+    fileIn.addEventListener('change', function () {
+      var file = fileIn.files[0];
+      if (!file) return;
+      if (!/^image\//.test(file.type)) { showError('Please choose an image file.'); return; }
+      var reader = new FileReader();
+      reader.onload = function () {
+        var img = new Image();
+        img.onload = function () {
+          var scale = Math.min(1, 400 / Math.max(img.width, img.height));
+          var c = document.createElement('canvas');
+          c.width = Math.round(img.width * scale);
+          c.height = Math.round(img.height * scale);
+          c.getContext('2d').drawImage(img, 0, 0, c.width, c.height);
+          draftPhoto = c.toDataURL('image/jpeg', 0.82);
+          urlIn.value = '';
+          preview.src = draftPhoto;
+          error.hidden = true;
+        };
+        img.onerror = function () { showError('That image could not be read.'); };
+        img.src = reader.result;
+      };
+      reader.readAsDataURL(file);
+    });
+
+    var uploadBtn = h('button', { type: 'button', class: 'tm-btn tm-btn--ghost', onclick: function () { fileIn.click(); } }, ['Upload photo']);
+
+    var form = h('form', { class: 'tp-card tp-form', novalidate: true, 'aria-label': isNew ? 'Add trainer' : 'Edit ' + t.name }, [
+      h('h2', { class: 'tm-panel__title', text: 'Profile' }),
+      h('div', { class: 'tp-photo' }, [preview, h('div', { class: 'tp-photo__ctl' }, [urlIn, uploadBtn, fileIn])]),
+      field('Name', nameIn),
+      field('Rating', ratingIn),
+      field('Bio', bioIn, true),
+      h('div', { class: 'tm-field tm-field--wide' }, [h('span', { class: 'tm-label', text: 'Specialties' }), catBox]),
+      field('Email', emailIn),
+      field('Phone', phoneIn),
+      field('Shift starts', startIn),
+      field('Shift ends', endIn),
+      h('div', { class: 'tm-field tm-field--wide' }, [h('span', { class: 'tm-label', text: 'Usual working days' }), dayBox]),
+      error,
+      h('div', { class: 'tp-actions' }, [
+        isNew ? null : h('button', {
+          type: 'button', class: 'tm-btn tm-btn--danger',
+          onclick: function () {
+            if (!window.confirm('Delete ' + (t.name || 'this trainer') + '? This cannot be undone.')) return;
+            trainers = trainers.filter(function (x) { return x.id !== t.id; });
+            if (persist()) window.location.href = BACK;
+          }
+        }, ['Delete trainer']),
+        h('a', { class: 'tm-btn tm-btn--ghost', href: BACK }, ['Cancel']),
+        h('button', { type: 'submit', class: 'tm-btn tm-btn--primary' }, [isNew ? 'Add trainer' : 'Save changes'])
+      ])
+    ]);
+
+    form.addEventListener('submit', function (e) {
+      e.preventDefault();
+      var name = nameIn.value.trim();
+      if (!name) { showError('Please enter a name.', nameIn); return; }
+      if (!startIn.value || !endIn.value) { showError('Please set the shift start and end times.', startIn); return; }
+      if (endIn.value <= startIn.value) { showError('The shift must end after it starts.', endIn); return; }
+
+      t.name = name;
+      t.photo = draftPhoto;
+      t.bio = bioIn.value.trim();
+      t.rating = +ratingIn.value;
+      t.email = emailIn.value.trim();
+      t.phone = phoneIn.value.trim();
+      t.shift = { start: startIn.value, end: endIn.value };
+      t.categories = Array.prototype.map.call(catBox.querySelectorAll('input:checked'), function (i) { return i.value; });
+      t.weekly = Array.prototype.map.call(dayBox.querySelectorAll('input:checked'), function (i) { return DAY_NAMES.indexOf(i.value); });
+      if (isNew) trainers.unshift(t);
+      else trainers = trainers.map(function (x) { return x.id === t.id ? t : x; });
+      if (persist()) window.location.href = BACK;
+    });
+
+    return form;
+  }
+
+  // Close the settings menu when clicking elsewhere (same as the other pages)
+  document.addEventListener('click', function (e) {
+    document.querySelectorAll('details.settings-menu[open]').forEach(function (d) {
+      if (!d.contains(e.target)) d.removeAttribute('open');
+    });
+  });
+})();
+</script>
+<script src="auth.js"></script>
+</body>
+</html>

@@ -1,0 +1,73 @@
+/* GTG Fitness - announcements (admin / owner post them, members and trainers read them).
+   Fonts are inherited so they match app.css. */
+.ann-panel__title {
+  margin: 0 0 0.9rem;
+  padding-bottom: 0.7rem;
+  border-bottom: 1px solid var(--border-soft, #e2e2e0);
+  font-size: 1.15rem;
+  font-weight: 700;
+}
+
+.ann { display: flex; flex-direction: column; gap: 14px; font-family: inherit; }
+
+/* ---------- compose box (admin / owner) ---------- */
+.ann__form {
+  display: flex; flex-direction: column; gap: 8px;
+  padding: 14px; border: 1px solid #e3e6eb; border-radius: 14px; background: #fff;
+}
+.ann__field {
+  width: 100%; box-sizing: border-box;
+  padding: 10px 12px; border: 1px solid #cfd4dc; border-radius: 10px;
+  font: inherit; font-size: 14px; background: #fff; color: inherit;
+}
+.ann__field--title { font-weight: 600; }
+.ann__field--text { resize: none; line-height: 1.45; }
+.ann__field:focus-visible { outline: 2px solid #14304a; outline-offset: 1px; }
+
+.ann__rule {
+  display: flex; align-items: flex-start; gap: 6px; margin: 0;
+  font-size: 12px; line-height: 1.4; color: #6b7280;
+}
+.ann__icon { display: inline-flex; flex: none; }
+.ann__icon svg { width: 14px; height: 14px; }
+.ann__rule .ann__icon { margin-top: 1px; }
+
+.ann__row { display: flex; align-items: center; gap: 8px; }
+.ann__count { margin-right: auto; font-size: 12px; opacity: .6; }
+.ann__post {
+  font: inherit; font-size: 13px; font-weight: 700; cursor: pointer;
+  padding: 8px 20px; border-radius: 8px; border: 0; background: #14304a; color: #fff;
+}
+.ann__post:hover { background: #1f4e79; }
+
+/* ---------- announcement cards ---------- */
+.ann__list { display: flex; flex-direction: column; gap: 10px; max-height: 420px; overflow-y: auto; padding-right: 2px; }
+.ann__item {
+  display: flex; flex-direction: column; gap: 8px;
+  padding: 12px 14px; border-radius: 14px;
+  background: #f4f6fa; border-left: 5px solid #14304a;
+}
+.ann__item--locked { border-left-color: #b6bdc9; }
+
+.ann__header { display: flex; flex-direction: column; gap: 2px; }
+.ann__title { margin: 0; font-size: 15px; font-weight: 700; color: #14304a; line-height: 1.3; }
+.ann__meta { margin: 0; font-size: 12px; color: #6b7280; }
+.ann__text { margin: 0; font-size: 14px; line-height: 1.5; white-space: pre-wrap; overflow-wrap: anywhere; }
+
+.ann__foot {
+  display: flex; align-items: center; justify-content: space-between; gap: 8px;
+  padding-top: 8px; border-top: 1px dashed #d3d9e3;
+}
+.ann__status { white-space: nowrap; display: inline-flex; align-items: center; gap: 6px; font-size: 12px; font-weight: 600; color: #5b6472; }
+.ann__status--soon { color: #b45309; }
+
+.ann__remove {
+  display: inline-flex; align-items: center; gap: 6px;
+  padding: 6px 12px; border-radius: 8px; border: 1px solid #e3b9b6; background: #fff;
+  color: #b3261e; font: inherit; font-size: 12.5px; font-weight: 700; cursor: pointer;
+}
+.ann__remove svg { width: 14px; height: 14px; }
+.ann__remove:hover { background: #fdf0ef; }
+.ann__remove:focus-visible { outline: 2px solid #b3261e; outline-offset: 2px; }
+
+.ann__empty { margin: 0; font-size: 14px; opacity: .65; }

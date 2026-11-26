@@ -1,0 +1,571 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <script src="supabase-config.js"></script>
+  <script src="gtg-db.js"></script>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+<title>Trainer Availability · GTG Fitness Trainer</title>
+<meta name="description" content="Request time off and set when you are not available at GTG Fitness." />
+
+<!-- Progressive web app -->
+<meta name="theme-color" content="#14304a" />
+<link rel="manifest" href="manifest.webmanifest" />
+<link rel="icon" type="image/png" href="icons/icon-192.png" />
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png" />
+<meta name="mobile-web-app-capable" content="yes" />
+<meta name="apple-mobile-web-app-capable" content="yes" />
+<meta name="apple-mobile-web-app-title" content="GTG Trainer" />
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Anton&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+<link href="https://fonts.googleapis.com/css2?family=BBH+Bogle&display=swap" rel="stylesheet" />
+
+<link rel="stylesheet" href="app.css?v=30" />
+<link rel="stylesheet" href="responsive.css" />
+<link rel="stylesheet" href="trainer.css?v=1" />
+<style>
+/* ---------- Trainer Availability: light-green calendar + Request Absence panel ---------- */
+.avail-card .big-calendar__cell:not(.big-calendar__cell--blank) { background-color: #dff3e3; }
+.avail-card .big-calendar__cell:not(.big-calendar__cell--blank):hover { background-color: #cdebd3; }
+.avail-card .big-calendar__cell.is-today { box-shadow: inset 0 0 0 2px #3962a7; }
+.avail-card .big-calendar__cell.is-selected,
+.avail-card .big-calendar__cell.is-selected:hover { background-color: #c8e8cf; box-shadow: none; }
+.avail-card .big-calendar__cell.is-today.is-selected { box-shadow: inset 0 0 0 2px #3962a7; }
+.big-calendar__cell:has(.absence-flag) { flex-direction: column; justify-content: space-between; align-items: flex-end; }
+.absence-flag {
+  align-self: flex-end; font-size: 0.62rem; font-weight: 700; line-height: 1.2; white-space: nowrap;
+  color: #8a2c2c; background: #fff; border: 1px solid #e8b9b9; border-radius: 999px; padding: 1px 7px;
+}
+.absence-flag--all { color: #fff; background: #b3261e; border-color: #b3261e; }
+
+.avail-legend { gap: 0.5rem; font-weight: 600; font-size: 0.9rem; }
+.avail-legend__hint { margin-left: auto; color: var(--text-muted); font-weight: 500; }
+.avail-swatch { display: inline-block; width: 16px; height: 16px; border-radius: 4px; border: 1px solid #a8a8a4; margin-left: 0.6rem; }
+.avail-swatch:first-child { margin-left: 0; }
+.avail-swatch--free { background: #dff3e3; }
+.avail-swatch--off { background: #fbdada; border-color: #d98b8b; }
+.avail-card .big-calendar__cell.is-absent:not(.big-calendar__cell--blank) { background-color: #fbdada; }
+.avail-card .big-calendar__cell.is-absent:not(.big-calendar__cell--blank):hover { background-color: #f6c9c9; }
+.avail-card .big-calendar__cell.is-absent.is-selected,
+.avail-card .big-calendar__cell.is-absent.is-selected:hover { background-color: #f6c8c8; box-shadow: none; }
+.avail-card .big-calendar__cell.is-absent.is-today.is-selected { box-shadow: inset 0 0 0 2px #3962a7; }
+.avail-note { margin: 1rem 0 0; padding: 0.6rem 0.85rem; border-radius: 8px; background: #fff7e0; border: 1px solid #efd98a; color: #5c4a00; font-size: 0.88rem; line-height: 1.4; }
+.absence-hint { margin: -0.3rem 0 0; color: var(--text-muted); font-size: 0.82rem; font-weight: 600; }
+.avail-defaults-title { margin: 1.25rem 0 0; }
+
+/* side panel */
+.absence-sub { margin: 1.1rem 0 0.6rem; font-size: 1rem; font-weight: 700; }
+.absence-note { margin: 1rem 0 0; color: var(--text-muted); font-weight: 600; }
+.absence-list { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 0.5rem; }
+.absence-item { display: grid; grid-template-columns: 1fr auto; gap: 0.3rem 0.6rem; background: #e6f5ea; border-radius: 8px; padding: 0.6rem 0.75rem; font-size: 0.9rem; }
+.absence-item__reason { margin: 0.2rem 0 0; color: var(--text-muted); overflow-wrap: anywhere; }
+.absence-item__img { width: 44px; height: 44px; object-fit: cover; border-radius: 6px; grid-row: 1 / span 2; grid-column: 2; }
+.absence-item__remove { grid-column: 1 / -1; justify-self: start; border: 0; background: transparent; color: #b3261e; font: inherit; font-weight: 700; font-size: 0.85rem; cursor: pointer; padding: 0; }
+.absence-badge { display: inline-block; margin-left: 0.3rem; padding: 1px 8px; border-radius: 999px; background: #2e8b57; color: #fff; font-size: 0.72rem; font-weight: 700; }
+
+.absence-form { display: flex; flex-direction: column; gap: 0.85rem; }
+.absence-form .field { display: flex; flex-direction: column; gap: 0.3rem; font-weight: 700; font-size: 0.88rem; }
+.absence-form .field em { font-style: normal; font-weight: 500; color: var(--text-muted); }
+.absence-form .select-native { padding: 0.55rem 0.8rem; font-size: 0.88rem; }
+.absence-form textarea {
+  width: 100%; box-sizing: border-box; resize: vertical; padding: 0.6rem 0.8rem; border-radius: 8px;
+  border: 1px solid var(--border-soft); background: #f5f5f4; font: inherit; font-weight: 500; font-size: 0.92rem;
+}
+.absence-form textarea:focus-visible, .absence-form .select-native:focus-visible { outline: 2px solid var(--navy-accent-hover); }
+.time-row { display: grid; grid-template-columns: 1fr 1fr; gap: 0.6rem; }
+.time-row.is-disabled { opacity: 0.45; }
+.check-row { display: flex; align-items: flex-start; gap: 0.55rem; font-weight: 700; font-size: 0.92rem; cursor: pointer; }
+.check-row input { margin-top: 0.2rem; accent-color: #2e8b57; width: 16px; height: 16px; }
+.check-row small { display: block; font-weight: 500; color: var(--text-muted); font-size: 0.8rem; }
+.upload {
+  display: flex; align-items: center; justify-content: center; gap: 0.5rem; padding: 0.7rem; border-radius: 8px; cursor: pointer;
+  border: 1.5px dashed #9bb7a2; background: #f3faf5; color: #2e6b46; font-weight: 700; font-size: 0.88rem;
+}
+.upload:hover { background: #e6f5ea; }
+.upload svg { width: 18px; height: 18px; }
+.upload-preview { display: flex; align-items: center; gap: 0.75rem; margin-top: 0.5rem; }
+.upload-preview img { display: block; width: 88px; height: 88px; object-fit: cover; border-radius: 8px; border: 1px solid var(--border-soft); }
+.upload-thumb { position: relative; display: inline-block; }
+.upload-x {
+  position: absolute; top: -9px; right: -9px; width: 24px; height: 24px; padding: 0; border: 2px solid #fff; border-radius: 50%;
+  background: #b3261e; color: #fff; font: 700 16px/1 var(--font-body); cursor: pointer; display: flex; align-items: center; justify-content: center;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.3);
+}
+.upload-x:hover { background: #8f1d17; }
+.absence-actions { display: flex; align-items: center; gap: 0.6rem; }
+.btn-small--ghost { background: transparent; color: var(--text-dark); box-shadow: inset 0 0 0 1.5px #a8a8a4; padding: 0.5rem 1rem; }
+.btn-small--ghost:hover { background: #f1f1ef; }
+@media (max-width: 720px) { .avail-legend__hint { margin-left: 0; flex-basis: 100%; } }
+.avail-card .big-calendar { grid-template-columns: repeat(7, minmax(0, 1fr)); }
+.avail-card .big-calendar__cell { min-width: 0; overflow: hidden; }
+.avail-card .chip { background: #e6f5ea; }
+@media (max-width: 720px) { .absence-flag { font-size: 0.55rem; padding: 0 4px; } }
+</style>
+</head>
+<body data-page="availability">
+
+<div class="app-shell app-shell--with-aside">
+
+  <header class="app-topbar">
+    <a href="trainerdashboard.html" class="app-topbar__logo">GTG FITNESS</a>
+    <details class="settings-menu">
+      <summary class="app-topbar__settings" aria-label="Settings">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+          <circle cx="12" cy="12" r="3"></circle>
+          <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.6a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9c.14.32.44.55.8.66.34.11.65.36.8.66"></path>
+        </svg>
+      </summary>
+      <div class="settings-panel">
+        <div class="settings-panel__profile">
+          <img src="https://images.unsplash.com/photo-1594381898411-846e7d193883?auto=format&fit=crop&w=100&q=80" alt="" />
+          <div>
+            <p class="settings-panel__profile-name">Navarro, Irene Celeste</p>
+            <p class="settings-panel__profile-sub">Trainer</p>
+          </div>
+        </div>
+        <a href="edit-profile-trainer.html">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+            <path d="M12 20h9"></path>
+            <path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4Z"></path>
+          </svg>
+          Edit Profile
+        </a>
+        <div class="settings-panel__divider"></div>
+        <a href="index.html" class="settings-panel__logout">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+            <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
+            <path d="M16 17l5-5-5-5"></path>
+            <path d="M21 12H9"></path>
+          </svg>
+          Log Out
+        </a>
+      </div>
+    </details>
+  </header>
+
+  <nav class="app-sidebar" aria-label="Main navigation">
+    <ul class="app-nav">
+      <li><a href="trainerdashboard.html">Dashboard</a></li>
+      <li><a href="trainercalendar.html">Calendar</a></li>
+      <li><a href="trainerprogress.html">Member Progress</a></li>
+      <li class="is-active"><a href="traineravailability.html" aria-current="page">Trainer Availability</a></li>
+    </ul>
+    <div class="app-sidebar__logout">
+      <a href="index.html" aria-label="Log out">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+          <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
+          <path d="M16 17l5-5-5-5"></path>
+          <path d="M21 12H9"></path>
+        </svg>
+      </a>
+    </div>
+  </nav>
+
+  <main class="app-main">
+    <h1 class="page-title">Trainer Availability</h1>
+
+    <section class="card big-calendar-card avail-card" aria-label="Availability calendar">
+        <div class="calendar-controls">
+            <label for="month-select" class="visually-hidden">Select month</label>
+            <select id="month-select" class="select-native"></select>
+            <span id="calendar-year" class="calendar-year"></span>
+        </div>
+
+        <div class="big-calendar" role="table" aria-label="Calendar">
+            <span class="big-calendar__head">Sun</span>
+            <span class="big-calendar__head">Mon</span>
+            <span class="big-calendar__head">Tue</span>
+            <span class="big-calendar__head">Wed</span>
+            <span class="big-calendar__head">Thurs</span>
+            <span class="big-calendar__head">Fri</span>
+            <span class="big-calendar__head">Sat</span>
+        </div>
+
+        <div class="class-legend avail-legend" aria-label="Legend">
+          <span class="avail-swatch avail-swatch--free"></span> Available
+          <span class="avail-swatch avail-swatch--off"></span> Absence requested
+          <span class="avail-legend__hint">Press a date to request an absence.</span>
+        </div>
+
+        <p class="avail-note"><strong>Note:</strong> Please request your absence <strong>before the day</strong>, so your classes can be covered and members can be informed in time.</p>
+
+        <div id="default-wrap" hidden>
+          <h2 class="absence-sub avail-defaults-title">Default absences (repeat every week)</h2>
+          <ul class="chip-list" id="default-absences"></ul>
+        </div>
+    </section>
+  </main>
+
+  <aside class="app-aside app-aside--schedule" aria-label="Request absence">
+    <span id="schedule-title" hidden></span><!-- calendar.js writes its own heading here; not used on this page -->
+    <h2 class="schedule-card__title">Request Absence</h2>
+    <p class="schedule-count" id="absence-date"></p>
+    <div id="absence-body" aria-live="polite"></div>
+  </aside>
+
+</div>
+
+<script src="shell.js"></script>
+<script src="pwa.js"></script>
+<script src="calendar.js"></script>
+<script>
+/* Which coaches are free, and when.
+ *
+ * For now this is a simple weekly timetable kept in this file so the booking page works on its own.
+ * When the backend is ready, replace timesFor() with a call to the server that reads
+ * tbl_TrainerAvailability (days off) and tbl_Schedule (slots already taken).
+ * The booking page only uses window.GTG_AVAILABILITY, so nothing else has to change.
+ */
+(function () {
+  var SLOTS = ['7:00 AM', '8:00 AM', '9:00 AM', '10:00 AM', '11:00 AM', '1:00 PM',
+               '2:00 PM', '3:00 PM', '4:00 PM', '5:00 PM', '6:00 PM', '7:00 PM'];
+
+  // days: 0 = Sunday ... 6 = Saturday.  from / to are the first and last start time of the shift.
+  var SCHEDULE = {
+    'Coach Irene':  [{ days: [1, 2, 3, 4, 5, 6], from: '7:00 AM',  to: '3:00 PM' }],
+    'Coach Ken':    [{ days: [1, 2, 3, 4, 5],    from: '10:00 AM', to: '7:00 PM' }],
+    'Coach Ryan':   [{ days: [0, 2, 3, 4, 5, 6], from: '7:00 AM',  to: '11:00 AM' },
+                     { days: [0, 2, 3, 4, 5, 6], from: '4:00 PM',  to: '7:00 PM' }],
+    'Coach Vince':  [{ days: [1, 3, 5, 6],       from: '1:00 PM',  to: '7:00 PM' }],
+    'Coach Kyroll': [{ days: [1, 2, 3, 4, 5],    from: '7:00 AM',  to: '11:00 AM' },
+                     { days: [6],                from: '7:00 AM',  to: '1:00 PM' }]
+  };
+
+  // What each coach is trained to teach (same as the tags on the Trainers page).
+  // Keys match the class keys used on the Classes page: gym, boxing, muaythai, taekwondo, zumba, yoga.
+  var SPECIALIZATIONS = {
+    'Coach Irene':  ['yoga', 'zumba', 'taekwondo', 'gym'],
+    'Coach Ken':    ['muaythai', 'taekwondo', 'gym'],
+    'Coach Ryan':   ['yoga', 'boxing', 'zumba', 'gym'],
+    'Coach Vince':  ['yoga', 'zumba', 'taekwondo', 'gym'],
+    'Coach Kyroll': ['taekwondo', 'boxing', 'gym']
+  };
+  var CLASS_LABELS = { gym: 'Gym', boxing: 'Boxing', muaythai: 'Muay Thai', taekwondo: 'Taekwondo', zumba: 'Zumba', yoga: 'Yoga' };
+
+  // Specific days a coach is away, e.g. 'Coach Ken': ['2026-11-20']  (like tbl_TrainerAvailability = Unavailable)
+  var DAYS_OFF = {};
+
+  // Changes a trainer makes on the Trainer Availability page are saved in this browser
+  // and picked up here, so the member booking page respects them.
+  var DEFAULT_SCHEDULE = JSON.parse(JSON.stringify(SCHEDULE));
+  try {
+    var savedShifts = JSON.parse(localStorage.getItem('gtg_trainer_shifts') || '{}');
+    Object.keys(savedShifts).forEach(function (c) { if (SCHEDULE[c] && Array.isArray(savedShifts[c])) SCHEDULE[c] = savedShifts[c]; });
+    var savedOff = JSON.parse(localStorage.getItem('gtg_trainer_daysoff') || '{}');
+    Object.keys(savedOff).forEach(function (c) { if (Array.isArray(savedOff[c])) DAYS_OFF[c] = savedOff[c]; });
+  } catch (e) { /* no saved changes */ }
+
+  // Absence requests a trainer makes on the Trainer Availability page (saved in this browser):
+  //   { id, date: 'YYYY-MM-DD', allDay, from, to, reason, image, repeat, weekday }
+  // "repeat" = set as default: the same hours are blocked every week on that weekday, from `date` onward.
+  var ABSENCES = {};
+  try { ABSENCES = JSON.parse(localStorage.getItem('gtg_trainer_absences') || '{}') || {}; } catch (e) { ABSENCES = {}; }
+  function persistAbsences() {
+    try { localStorage.setItem('gtg_trainer_absences', JSON.stringify(ABSENCES)); return true; } catch (e) { return false; }
+  }
+
+  // Only the coaches who are trained for this class (e.g. 'yoga')
+  function coachesFor(classKey) {
+    return Object.keys(SCHEDULE).filter(function (c) {
+      return (SPECIALIZATIONS[c] || []).indexOf(classKey) !== -1;
+    });
+  }
+
+  function pad(n) { return n < 10 ? '0' + n : '' + n; }
+  function iso(d) { return d.getFullYear() + '-' + pad(d.getMonth() + 1) + '-' + pad(d.getDate()); }
+
+  function slotDate(date, label) {
+    var m = /^(\d+):(\d+) (AM|PM)$/.exec(label);
+    var h = parseInt(m[1], 10) % 12 + (m[3] === 'PM' ? 12 : 0);
+    return new Date(date.getFullYear(), date.getMonth(), date.getDate(), h, parseInt(m[2], 10));
+  }
+
+  function minutesOf(label) {
+    var m = /^(\d+):(\d+) (AM|PM)$/.exec(label);
+    return (parseInt(m[1], 10) % 12 + (m[3] === 'PM' ? 12 : 0)) * 60 + parseInt(m[2], 10);
+  }
+
+  // Absence requests that apply on `date` (one-off ones for that day + weekly defaults)
+  function absencesOn(coach, date) {
+    var key = iso(date), dow = date.getDay();
+    return (ABSENCES[coach] || []).filter(function (a) {
+      return a.date === key || (a.repeat && a.weekday === dow && key >= a.date);
+    });
+  }
+
+  // Is the coach away for the class starting at `label` on `date`?
+  function absentAt(coach, date, label) {
+    var t = minutesOf(label);
+    return absencesOn(coach, date).some(function (a) {
+      return a.allDay || (t >= minutesOf(a.from) && t < minutesOf(a.to));
+    });
+  }
+
+  // Start times this coach can take on `date`.
+  //   busy = times the member is already booked for (so they cannot be in two classes at once)
+  //   keep = the time of the booking being edited, so it stays pickable
+  function timesFor(coach, date, busy, keep) {
+    busy = busy || [];
+    var out = [];
+
+    if ((DAYS_OFF[coach] || []).indexOf(iso(date)) === -1) {
+      (SCHEDULE[coach] || []).forEach(function (shift) {
+        if (shift.days.indexOf(date.getDay()) === -1) return;
+        for (var i = SLOTS.indexOf(shift.from); i <= SLOTS.indexOf(shift.to); i++) {
+          if (out.indexOf(SLOTS[i]) === -1) out.push(SLOTS[i]);
+        }
+      });
+      // today: hide times that have already passed
+      var now = new Date();
+      if (iso(date) === iso(now)) {
+        out = out.filter(function (t) { return slotDate(date, t) > now; });
+      }
+    }
+
+    out = out.filter(function (t) { return !absentAt(coach, date, t); });
+
+    if (keep && out.indexOf(keep) === -1) out.push(keep);
+
+    return SLOTS.filter(function (t) { return out.indexOf(t) !== -1 && busy.indexOf(t) === -1; });
+  }
+
+  window.GTG_AVAILABILITY = {
+    slots: SLOTS,
+    coaches: Object.keys(SCHEDULE),
+    timesFor: timesFor,
+    coachesFor: coachesFor,
+    specializations: SPECIALIZATIONS,
+    classLabels: CLASS_LABELS,
+    shiftsOf: function (coach) { return SCHEDULE[coach] || []; },
+    defaultShiftsOf: function (coach) { return DEFAULT_SCHEDULE[coach] || []; },
+    daysOffOf: function (coach) { return (DAYS_OFF[coach] || []).slice(); },
+    absencesOf: function (coach) { return (ABSENCES[coach] || []).slice(); },
+    absencesOn: absencesOn,
+    absentAt: absentAt,
+    addAbsence: function (coach, absence) {
+      (ABSENCES[coach] = ABSENCES[coach] || []).push(absence);
+      if (persistAbsences()) return true;
+      ABSENCES[coach].pop();            // storage full: undo
+      return false;
+    },
+    removeAbsence: function (coach, id) {
+      ABSENCES[coach] = (ABSENCES[coach] || []).filter(function (a) { return a.id !== id; });
+      persistAbsences();
+    }
+  };
+})();
+</script>
+<script>
+/* Trainer Availability: uses the member calendar (calendar.js) as it is.
+ * calendar.js draws the month and fires "date-selected" / "date-cleared";
+ * this script shows the Request Absence panel and marks days that have an absence. */
+(function () {
+  'use strict';
+  var AV = window.GTG_AVAILABILITY;
+  var COACH = 'Coach Irene';                       // the signed-in trainer
+  var MONTHS = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
+  var DAY_NAMES = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+  var HOURS = ['7:00 AM', '8:00 AM', '9:00 AM', '10:00 AM', '11:00 AM', '12:00 PM', '1:00 PM',
+               '2:00 PM', '3:00 PM', '4:00 PM', '5:00 PM', '6:00 PM', '7:00 PM', '8:00 PM'];
+  var now = new Date();
+
+  function $(id) { return document.getElementById(id); }
+  function esc(t) { var e = document.createElement('span'); e.textContent = t; return e.innerHTML; }
+  function pad(n) { return n < 10 ? '0' + n : '' + n; }
+  function iso(y, m, d) { return y + '-' + pad(m + 1) + '-' + pad(d); }
+  function mins(label) {
+    var m = /^(\d+):(\d+) (AM|PM)$/.exec(label);
+    return (parseInt(m[1], 10) % 12 + (m[3] === 'PM' ? 12 : 0)) * 60 + parseInt(m[2], 10);
+  }
+  function toast(msg) { if (window.GTG_toast) window.GTG_toast(msg); }
+  function opts(list, selected) {
+    return list.map(function (t) { return '<option' + (t === selected ? ' selected' : '') + '>' + t + '</option>'; }).join('');
+  }
+  function when(a) { return a.allDay ? 'All day' : a.from + ' – ' + a.to; }
+  function newId() { return 'a' + Date.now().toString(36) + Math.random().toString(36).slice(2, 6); }
+
+  var calendar = document.querySelector('.big-calendar');
+  var monthSelect = $('month-select'), yearLabel = $('calendar-year');
+  var body = $('absence-body'), dateLine = $('absence-date'), defaultsEl = $('default-absences');
+  var picked = null, photo = '', byUser = false;
+
+  /* ---- mark days that have an absence on the calendar ---- */
+  function decorate() {
+    var month = parseInt(monthSelect.value, 10), year = parseInt(yearLabel.textContent, 10);
+    calendar.querySelectorAll('button.big-calendar__cell').forEach(function (cell) {
+      var old = cell.querySelector('.absence-flag');
+      if (old) old.remove();
+      cell.classList.remove('is-absent');
+      var day = parseInt(cell.firstChild.textContent, 10);
+      var list = AV.absencesOn(COACH, new Date(year, month, day));
+      if (!list.length) return;
+      cell.classList.add('is-absent');
+      var whole = list.some(function (a) { return a.allDay; });
+      var flag = document.createElement('span');
+      flag.className = 'absence-flag' + (whole ? ' absence-flag--all' : '');
+      flag.textContent = whole ? 'Absent' : 'Partly off';
+      cell.appendChild(flag);
+    });
+  }
+  // calendar.js redraws the cells when the month changes
+  new MutationObserver(decorate).observe(calendar, { childList: true });
+
+  /* ---- the side panel ---- */
+  function item(a) {
+    return '<li class="absence-item">' +
+      '<div class="absence-item__main"><strong>' + esc(when(a)) + '</strong>' +
+      (a.repeat ? ' <span class="absence-badge">Every ' + DAY_NAMES[a.weekday] + '</span>' : '') +
+      '<p class="absence-item__reason">' + esc(a.reason) + '</p></div>' +
+      (a.image ? '<img class="absence-item__img" src="' + a.image + '" alt="Attached picture" />' : '') +
+      '<button type="button" class="absence-item__remove" data-remove="' + a.id + '">Remove</button></li>';
+  }
+
+  function showPrompt() {
+    picked = null;
+    dateLine.textContent = '';
+    body.innerHTML = '<p class="schedule-empty">Press a date on the calendar to request an absence.</p>';
+  }
+
+  function showDay(y, m, d) {
+    picked = { y: y, m: m, d: d };
+    photo = '';
+    var date = new Date(y, m, d);
+    var past = date < new Date(now.getFullYear(), now.getMonth(), now.getDate());
+    dateLine.textContent = DAY_NAMES[date.getDay()] + ', ' + MONTHS[m] + ' ' + d + ', ' + y;
+
+    var existing = AV.absencesOn(COACH, date);
+    var html = '<h3 class="absence-sub">Already requested</h3>' +
+      (existing.length ? '<ul class="absence-list">' + existing.map(item).join('') + '</ul>'
+                       : '<p class="schedule-empty">Nothing yet. You are available all day.</p>');
+
+    if (past) {
+      html += '<p class="absence-note">This date has already passed, so a new absence can\'t be requested.</p>';
+    } else {
+      html += '<form class="absence-form" id="abs-form" novalidate>' +
+        '<h3 class="absence-sub">New request</h3>' +
+        '<p class="absence-hint">Request at least a day before the date.</p>' +
+        '<label class="check-row"><input type="checkbox" id="abs-all" /> Not available all day</label>' +
+        '<div class="time-row" id="abs-times">' +
+          '<label class="field"><span>Not available from</span><select class="select-native" id="abs-from">' + opts(HOURS.slice(0, -1), '7:00 AM') + '</select></label>' +
+          '<label class="field"><span>Until</span><select class="select-native" id="abs-to">' + opts(HOURS.slice(1), '12:00 PM') + '</select></label>' +
+        '</div>' +
+        '<label class="check-row"><input type="checkbox" id="abs-default" /> <span>Set as default<small>Repeat every ' + DAY_NAMES[date.getDay()] + '</small></span></label>' +
+        '<label class="field"><span>Reason</span><textarea id="abs-reason" rows="3" maxlength="300" placeholder="e.g. Doctor\'s appointment"></textarea></label>' +
+        '<div class="field"><span>Upload image <em>(optional, e.g. medical certificate)</em></span>' +
+          '<label class="upload" for="abs-file"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><path d="m17 8-5-5-5 5"/><path d="M12 3v12"/></svg>Choose a picture</label>' +
+          '<input type="file" id="abs-file" accept="image/*" hidden />' +
+          '<div id="abs-preview"></div></div>' +
+        '<p class="avail-error" id="abs-error" role="alert" hidden></p>' +
+        '<div class="absence-actions"><button type="submit" class="btn btn-navy">Submit request</button>' +
+        '<button type="button" class="btn-small btn-small--ghost" id="abs-clear">Clear</button></div></form>';
+    }
+    body.innerHTML = html;
+  }
+
+  function showError(msg) { var e = $('abs-error'); e.textContent = msg; e.hidden = !msg; }
+
+  function readImage(file, done) {                 // shrink the picture so it fits in the browser's storage
+    var reader = new FileReader();
+    reader.onerror = function () { done(''); };
+    reader.onload = function () {
+      var img = new Image();
+      img.onerror = function () { done(''); };
+      img.onload = function () {
+        var r = Math.min(1, 900 / Math.max(img.width, img.height));
+        var c = document.createElement('canvas');
+        c.width = Math.round(img.width * r); c.height = Math.round(img.height * r);
+        c.getContext('2d').drawImage(img, 0, 0, c.width, c.height);
+        done(c.toDataURL('image/jpeg', 0.75));
+      };
+      img.src = reader.result;
+    };
+    reader.readAsDataURL(file);
+  }
+
+  function drawPreview() {
+    $('abs-preview').innerHTML = photo
+      ? '<div class="upload-preview"><div class="upload-thumb"><img src="' + photo + '" alt="Picture to attach" /><button type="button" id="abs-photo-remove" class="upload-x" aria-label="Remove picture" title="Remove picture">&times;</button></div></div>' : '';
+  }
+
+  body.addEventListener('change', function (e) {
+    if (e.target.id === 'abs-all') {
+      $('abs-times').classList.toggle('is-disabled', e.target.checked);
+      $('abs-from').disabled = $('abs-to').disabled = e.target.checked;
+    }
+    if (e.target.id === 'abs-file' && e.target.files[0]) {
+      var f = e.target.files[0];
+      if (f.type.indexOf('image/') !== 0) { showError('Please choose a picture (JPG or PNG).'); e.target.value = ''; return; }
+      showError('');
+      readImage(f, function (url) {
+        if (!url) { showError('That picture could not be read. Try another one.'); return; }
+        photo = url; drawPreview();
+      });
+      e.target.value = '';
+    }
+  });
+
+  body.addEventListener('click', function (e) {
+    if (e.target.id === 'abs-photo-remove') { photo = ''; drawPreview(); return; }
+    if (e.target.id === 'abs-clear') { showDay(picked.y, picked.m, picked.d); return; }
+    var rm = e.target.closest('[data-remove]');
+    if (rm) { AV.removeAbsence(COACH, rm.getAttribute('data-remove')); refresh(); toast('Absence removed'); }
+  });
+
+  body.addEventListener('submit', function (e) {
+    e.preventDefault();
+    var allDay = $('abs-all').checked, from = $('abs-from').value, to = $('abs-to').value;
+    var reason = $('abs-reason').value.trim();
+    if (!allDay && mins(from) >= mins(to)) return showError('"Until" must be later than "Not available from".');
+    if (reason.length < 3) return showError('Please tell us the reason.');
+    var ok = AV.addAbsence(COACH, {
+      id: newId(), date: iso(picked.y, picked.m, picked.d), allDay: allDay,
+      from: allDay ? '' : from, to: allDay ? '' : to, reason: reason, image: photo,
+      repeat: $('abs-default').checked, weekday: new Date(picked.y, picked.m, picked.d).getDay()
+    });
+    if (!ok) return showError('Not enough storage for that picture. Try a smaller one or remove it.');
+    toast('Absence request saved. Members won\'t be able to book those times.');
+    refresh();
+  });
+
+  /* ---- default (weekly) absences under the calendar ---- */
+  function drawDefaults() {
+    var list = AV.absencesOf(COACH).filter(function (a) { return a.repeat; });
+    $('default-wrap').hidden = !list.length;
+    defaultsEl.innerHTML = list.map(function (a) {
+      return '<li class="chip"><span>Every ' + DAY_NAMES[a.weekday] + ' · ' + esc(when(a)) + '</span>' +
+        '<button type="button" data-remove="' + a.id + '">Remove</button></li>';
+    }).join('');
+  }
+  defaultsEl.addEventListener('click', function (e) {
+    var rm = e.target.closest('[data-remove]');
+    if (!rm) return;
+    AV.removeAbsence(COACH, rm.getAttribute('data-remove'));
+    refresh(); toast('Default removed');
+  });
+
+  function refresh() {
+    drawDefaults(); decorate();
+    if (picked) showDay(picked.y, picked.m, picked.d);
+  }
+
+  /* ---- listen to the member calendar's events ---- */
+  // calendar.js also "selects" today by itself when it draws the month; only a real press opens the panel
+  calendar.addEventListener('click', function (e) { if (e.target.closest('button.big-calendar__cell')) byUser = true; }, true);
+  document.addEventListener('date-selected', function (e) {
+    if (!byUser) { showPrompt(); return; }
+    byUser = false;
+    showDay(e.detail.year, e.detail.month, e.detail.day);
+  });
+  document.addEventListener('date-cleared', showPrompt);
+
+  drawDefaults();
+  decorate();
+  showPrompt();
+})();
+
+</script>
+</body>
+</html>

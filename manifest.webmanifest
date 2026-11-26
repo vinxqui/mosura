@@ -1,0 +1,23 @@
+{
+  "name": "GTG Fitness Trainer",
+  "short_name": "GTG Trainer",
+  "description": "GTG Fitness trainer app: your classes, attendees, member progress and availability.",
+  "id": "./trainerdashboard.html",
+  "start_url": "./trainerdashboard.html?source=pwa",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "any",
+  "background_color": "#ececea",
+  "theme_color": "#14304a",
+  "categories": ["fitness", "health", "productivity"],
+  "icons": [
+    { "src": "icons/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "icons/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "icons/icon-maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ],
+  "shortcuts": [
+    { "name": "Calendar", "url": "./trainercalendar.html", "icons": [{ "src": "icons/icon-192.png", "sizes": "192x192" }] },
+    { "name": "Member Progress", "url": "./trainerprogress.html", "icons": [{ "src": "icons/icon-192.png", "sizes": "192x192" }] },
+    { "name": "Trainer Availability", "url": "./traineravailability.html", "icons": [{ "src": "icons/icon-192.png", "sizes": "192x192" }] }
+  ]
+}

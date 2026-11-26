@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <script src="supabase-config.js"></script>
+  <script src="gtg-db.js"></script>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Membership Price List · GTG Fitness</title>
+<meta name="description" content="GTG Fitness membership price list." />
+
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Anton&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+<link href="https://fonts.googleapis.com/css2?family=BBH+Bogle&display=swap" rel="stylesheet" />
+
+<link rel="stylesheet" href="home.css" />
+</head>
+<body>
+
+<header class="site-nav">
+  <a href="index.html" class="site-nav__logo">GTG FITNESS</a>
+
+  <nav aria-label="Primary">
+    <ul class="site-nav__links">
+      <li><a class="nav-btn nav-btn--outline" href="contact.html">Contact Us</a></li>
+      <li><a class="nav-btn nav-btn--outline" href="login.html">Log In</a></li>
+    </ul>
+  </nav>
+</header>
+
+<main>
+  <section class="price-list-section" aria-labelledby="price-list-heading">
+    <h1 id="price-list-heading" class="price-list-heading">Membership Price List</h1>
+
+    <ul class="price-list">
+
+      <li class="price-row">
+        <div class="price-row__info">
+          <div class="price-row__name-line">
+            <h2 class="price-row__name">Walk-In (Gym Use Only)</h2>
+          </div>
+          <p class="price-row__desc">Single-visit access to the gym floor and equipment</p>
+        </div>
+        <span class="price-row__price">₱100<span>/ visit</span></span>
+      </li>
+
+      <li class="price-row price-row--featured">
+        <div class="price-row__info">
+          <div class="price-row__name-line">
+            <h2 class="price-row__name">Walk-In (Group Class)</h2>
+            <span class="price-row__badge">Most Popular</span>
+          </div>
+          <p class="price-row__desc">One group class (Boxing, Muay Thai, Taekwondo, Yoga, or Zumba)</p>
+        </div>
+        <span class="price-row__price">₱200<span>/ class</span></span>
+      </li>
+
+      <li class="price-row">
+        <div class="price-row__info">
+          <div class="price-row__name-line">
+            <h2 class="price-row__name">Gym Access</h2>
+          </div>
+          <p class="price-row__desc">Full gym access</p>
+        </div>
+        <span class="price-row__price">₱1,490</span>
+      </li>
+
+      <li class="price-row">
+        <div class="price-row__info">
+          <div class="price-row__name-line">
+            <h2 class="price-row__name">All-Inclusive Access</h2>
+          </div>
+          <p class="price-row__desc">Gym use and group classes. 2 months ₱2,780 · 3 months ₱3,900</p>
+        </div>
+        <span class="price-row__price">from ₱2,780</span>
+      </li>
+
+      <li class="price-row">
+        <div class="price-row__info">
+          <div class="price-row__name-line">
+            <h2 class="price-row__name">Boxing / Muay Thai</h2>
+          </div>
+          <p class="price-row__desc">1 session ₱400 · 5 sessions ₱2,000 · 10 sessions ₱3,500</p>
+        </div>
+        <span class="price-row__price">from ₱400</span>
+      </li>
+
+      <li class="price-row">
+        <div class="price-row__info">
+          <div class="price-row__name-line">
+            <h2 class="price-row__name">Taekwondo</h2>
+          </div>
+          <p class="price-row__desc">10 sessions</p>
+        </div>
+        <span class="price-row__price">₱3,000</span>
+      </li>
+
+      <li class="price-row">
+        <div class="price-row__info">
+          <div class="price-row__name-line">
+            <h2 class="price-row__name">Yoga &amp; Mat Pilates</h2>
+          </div>
+          <p class="price-row__desc">1 session ₱300 · 1 month ₱1,990</p>
+        </div>
+        <span class="price-row__price">from ₱300</span>
+      </li>
+
+      <li class="price-row">
+        <div class="price-row__info">
+          <div class="price-row__name-line">
+            <h2 class="price-row__name">Personal Training</h2>
+          </div>
+          <p class="price-row__desc">1 session ₱650 · 12 sessions ₱7,200 · 20 sessions ₱11,000 · 30 sessions ₱15,000</p>
+        </div>
+        <span class="price-row__price">from ₱650</span>
+      </li>
+
+      <li class="price-row">
+        <div class="price-row__info">
+          <div class="price-row__name-line">
+            <h2 class="price-row__name">Buddy Training</h2>
+          </div>
+          <p class="price-row__desc">1 session ₱1,000 · 12 sessions ₱11,400 · 20 sessions ₱18,000 · 30 sessions ₱25,500</p>
+        </div>
+        <span class="price-row__price">from ₱1,000</span>
+      </li>
+
+    </ul>
+
+    <div class="price-list-note">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="10"></circle><path d="M12 16v-4"></path><path d="M12 8h.01"></path></svg>
+      <span>Payments accepted: cash, GCash, Maya, UnionBank and BDO Online. Gym hours: 7:00 AM to 8:00 PM.</span>
+    </div>
+  </section>
+</main>
+
+<footer class="site-footer" id="contact">
+  <div>
+    <p class="site-footer__logo">GTG FITNESS</p>
+    <p class="site-footer__tagline">Every rep brings you closer to your journey.</p>
+  </div>
+
+  <ul class="site-footer__contact">
+    <li>
+      <a href="https://www.facebook.com/p/GTG-Fitness-61572973704677/" class="social-link" target="_blank" rel="noopener noreferrer">
+        <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M22 12a10 10 0 1 0-11.6 9.9v-7H7.9V12h2.5V9.8c0-2.5 1.5-3.9 3.8-3.9 1.1 0 2.2.2 2.2.2v2.4h-1.3c-1.2 0-1.6.8-1.6 1.6V12h2.8l-.4 2.9h-2.4v7A10 10 0 0 0 22 12Z"/></svg>
+      </a>
+      GTG FITNESS
+    </li>
+    <li>
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><rect x="2" y="4" width="20" height="16" rx="2"></rect><path d="m2 6 10 7 10-7"></path></svg>
+      gtgfitness25@gmail.com
+    </li>
+    <li>
+      <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M4 3h4l2 5-2.5 1.5a11 11 0 0 0 5 5L14 12l5 2v4a2 2 0 0 1-2 2A15 15 0 0 1 4 5a2 2 0 0 1 2-2Z"/></svg>
+      09175462414
+    </li>
+  </ul>
+</footer>
+
+</body>
+</html>

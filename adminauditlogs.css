@@ -1,0 +1,27 @@
+/* Audit log additions — load after app.css */
+.status-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.2rem 0.65rem;
+  border-radius: var(--radius-pill, 999px);
+  font-size: 0.78rem;
+  font-weight: 700;
+  white-space: nowrap;
+}
+.status-pill::before {
+  content: "";
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: currentColor;
+}
+.status-pill--in  { background: #dff5e1; color: #1f7a2e; }
+.status-pill--out { background: #ececea; color: #6f6f6f; }
+
+.data-table__empty {
+  padding: 1rem;
+  text-align: center;
+  color: var(--text-muted);
+  font-weight: 600;
+}

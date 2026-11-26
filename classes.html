@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <script src="supabase-config.js"></script>
+  <script src="gtg-db.js"></script>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Classes · GTG Fitness</title>
+<meta name="description" content="Book a class at GTG Fitness." />
+
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Anton&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+<link href="https://fonts.googleapis.com/css2?family=BBH+Bogle&display=swap" rel="stylesheet" />
+
+<link rel="stylesheet" href="app.css?v=30" />
+</head>
+<body>
+
+<div class="app-shell">
+
+  <header class="app-topbar">
+    <a href="memberdashboard.html" class="app-topbar__logo">GTG FITNESS</a>
+    <details class="settings-menu">
+      <summary class="app-topbar__settings" aria-label="Settings">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+          <circle cx="12" cy="12" r="3"></circle>
+          <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.6a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9c.14.32.44.55.8.66.34.11.65.36.8.66"></path>
+        </svg>
+      </summary>
+      <div class="settings-panel">
+        <div class="settings-panel__profile">
+          <img src="https://images.unsplash.com/photo-1544005313-94ddf0286df2?auto=format&fit=crop&w=100&q=80" alt="" />
+          <div>
+            <p class="settings-panel__profile-name">Madriaga, Rafaela</p>
+            <p class="settings-panel__profile-sub">Member</p>
+          </div>
+        </div>
+        <a href="edit-profile.html">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+            <path d="M12 20h9"></path>
+            <path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4Z"></path>
+          </svg>
+          Edit Profile
+        </a>
+        <div class="settings-panel__divider"></div>
+        <a href="index.html" class="settings-panel__logout">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+            <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
+            <path d="M16 17l5-5-5-5"></path>
+            <path d="M21 12H9"></path>
+          </svg>
+          Log Out
+        </a>
+      </div>
+    </details>
+  </header>
+
+  <nav class="app-sidebar" aria-label="Main navigation">
+    <ul class="app-nav">
+      <li><a href="memberdashboard.html">Dashboard</a></li>
+      <li><a href="calendar.html">Calendar</a></li>
+      <li class="is-active"><a href="classes.html" aria-current="page">Classes</a></li>
+      <li><a href="trainers.html">Trainers</a></li>
+      <li><a href="equipment.html">Equipment</a></li>
+      <li><a href="payment.html">Payment</a></li>
+      <li><a href="feedback.html">Feedback</a></li>
+    </ul>
+  </nav>
+
+  <main class="app-main">
+    <h1 class="page-title">Book your Class now!</h1>
+    <p class="page-subtitle">Please request your appointment before the day of your session.</p>
+
+    <div class="classes-grid">
+
+      <article class="class-card">
+        <h2 class="class-card__title">Gym use</h2>
+        <p class="class-card__desc">Push limits with intense weight training.</p>
+        <button type="button" class="class-card__info" data-name="Gym use" data-desc="Open access to the gym floor for strength and weight training. Choose a walk-in pass or an All-Inclusive membership when you book." aria-label="About Gym use"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="10"></circle><path d="M12 16v-4M12 8h.01"></path></svg></button>
+        <img class="class-card__img" src="https://i.pinimg.com/736x/1c/37/ea/1c37ea13ad98c0f70e396dafaf224934.jpg" alt="Person training with weights in a gym" />
+        <button type="button" class="btn btn-navy book-session-btn" data-class="gym" data-name="Gym use">Book Session</button>
+
+      </article>
+
+
+      <article class="class-card">
+        <h2 class="class-card__title">Boxing</h2>
+        <p class="class-card__desc">Build strength with powerful boxing drills.</p>
+        <button type="button" class="class-card__info" data-name="Boxing" data-desc="Build strength and stamina with powerful boxing drills covering footwork, punches and defense. Join a regular class, or pick Personal or Buddy Training when you book." aria-label="About Boxing"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="10"></circle><path d="M12 16v-4M12 8h.01"></path></svg></button>
+        <img class="class-card__img" src="https://i.pinimg.com/1200x/d4/c5/a4/d4c5a4438599eb6fb4c52210479ea360.jpg" alt="Two boxers sparring in a ring" />
+        <button type="button" class="btn btn-navy book-session-btn" data-class="boxing" data-name="Boxing">Book Session</button>
+      </article>
+
+      <article class="class-card">
+        <h2 class="class-card__title">Muay Thai</h2>
+        <p class="class-card__desc">Burn calories with intense training.</p>
+        <button type="button" class="class-card__info" data-name="Muay Thai" data-desc="Train the art of eight limbs with punches, kicks, elbows and knees. A high-intensity session that builds conditioning and burns calories." aria-label="About Muay Thai"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="10"></circle><path d="M12 16v-4M12 8h.01"></path></svg></button>
+        <img class="class-card__img" src="https://i.pinimg.com/736x/72/93/ce/7293cedcc7bf9d2b996e9acaaba9a259.jpg" alt="Muay Thai fighters training" />
+        <button type="button" class="btn btn-navy book-session-btn" data-class="muaythai" data-name="Muay Thai">Book Session</button>
+      </article>
+
+      <article class="class-card">
+        <h2 class="class-card__title">Taekwondo</h2>
+        <p class="class-card__desc">Learn kicks, blocks, and techniques.</p>
+        <button type="button" class="class-card__info" data-name="Taekwondo" data-desc="Learn kicks, blocks and techniques while improving flexibility, balance and discipline." aria-label="About Taekwondo"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="10"></circle><path d="M12 16v-4M12 8h.01"></path></svg></button>
+        <img class="class-card__img" src="https://i.pinimg.com/736x/26/75/8b/26758b26cda1b16782177c32a150c38d.jpg" alt="Taekwondo athletes sparring" />
+        <button type="button" class="btn btn-navy book-session-btn" data-class="taekwondo" data-name="Taekwondo">Book Session</button>
+      </article>
+
+      <article class="class-card">
+        <h2 class="class-card__title">Zumba</h2>
+        <p class="class-card__desc">Dance, move, and burn calories.</p>
+        <button type="button" class="class-card__info" data-name="Zumba" data-desc="A fun, dance-based cardio workout set to upbeat music. Move, sweat and burn calories with the group." aria-label="About Zumba"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="10"></circle><path d="M12 16v-4M12 8h.01"></path></svg></button>
+        <img class="class-card__img" src="https://i.pinimg.com/736x/c5/f8/05/c5f80547860391d2309782b42af1b9e3.jpg" alt="Group Zumba dance class" />
+        <button type="button" class="btn btn-navy book-session-btn" data-class="zumba" data-name="Zumba">Book Session</button>
+      </article>
+
+      <article class="class-card">
+        <h2 class="class-card__title">Yoga</h2>
+        <p class="class-card__desc">Strengthen and stretch your body.</p>
+        <button type="button" class="class-card__info" data-name="Yoga" data-desc="Strengthen and stretch your body with guided poses and breathing. Great for flexibility, balance and winding down." aria-label="About Yoga"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="10"></circle><path d="M12 16v-4M12 8h.01"></path></svg></button>
+        <img class="class-card__img" src="https://i.pinimg.com/736x/9d/f2/8a/9df28a982202124136a5773fd8564171.jpg" alt="Person in a yoga stretch pose" />
+        <button type="button" class="btn btn-navy book-session-btn" data-class="yoga" data-name="Yoga">Book Session</button>
+      </article>
+
+    </div>
+  </main>
+
+</div>
+
+<dialog class="payment-modal booking-modal info-modal" id="info-modal">
+  <div class="payment-modal__inner">
+    <div class="payment-modal__header">
+      <h2 id="info-modal-title">Class</h2>
+      <button type="button" class="payment-modal__close" aria-label="Close" data-close-dialog="info-modal">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+          <path d="M18 6 6 18M6 6l12 12"></path>
+        </svg>
+      </button>
+    </div>
+    <p class="info-modal__desc" id="info-modal-desc"></p>
+  </div>
+</dialog>
+
+<dialog class="payment-modal booking-modal" id="booking-modal">
+  <div class="payment-modal__inner">
+    <div class="payment-modal__header">
+      <h2 id="booking-modal-title">Class</h2>
+      <button type="button" class="payment-modal__close" aria-label="Close" data-close-dialog="booking-modal">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+          <path d="M18 6 6 18M6 6l12 12"></path>
+        </svg>
+      </button>
+    </div>
+
+    <div class="field-group" id="variant-group" hidden>
+      <label>Boxing type <span class="optional-tag">(optional)</span></label>
+      <div class="session-options" id="variant-options"></div>
+    </div>
+
+    <!-- Gym use, step 1: what kind of access? -->
+    <div class="field-group" id="type-group" hidden>
+      <label>Choose a package</label>
+      <div class="session-options type-options" id="type-options"></div>
+    </div>
+
+    <div class="field-group" id="package-group">
+      <button type="button" class="step-back" id="step-back" hidden>&larr; Back</button>
+      <label id="package-label">Choose a package</label>
+      <div class="session-options" id="session-options"></div>
+    </div>
+
+    <div class="field-group" id="extra-group" hidden>
+      <label>Add more sessions? <span class="optional-tag">(optional)</span></label>
+      <div class="qty-row">
+        <div class="qty-stepper" id="session-stepper">
+          <button type="button" class="qty-btn" id="session-minus" aria-label="Fewer extra sessions">&minus;</button>
+          <span class="qty-value" id="session-qty" aria-live="polite">0</span>
+          <button type="button" class="qty-btn" id="session-plus" aria-label="More extra sessions">+</button>
+        </div>
+        <span class="qty-price" id="session-price-line"></span>
+      </div>
+      <p class="qty-hint" id="session-hint">Pick a package first.</p>
+    </div>
+
+    <div class="field-group" id="equipment-group" hidden>
+      <label>Equipment <span class="optional-tag">(optional)</span></label>
+      <ul class="equipment-list" id="equipment-list"></ul>
+    </div>
+
+    <p class="booking-breakdown" id="booking-breakdown" hidden></p>
+
+    <div class="booking-footer">
+      <p class="booking-total">Total: <strong id="booking-total-amount">₱0</strong></p>
+      <button type="button" class="btn btn-navy booking-continue-btn" id="booking-continue-btn" disabled>Continue</button>
+    </div>
+  </div>
+</dialog>
+
+<script src="equipment-data.js?v=3"></script>
+<script src="measurement.js?v=3"></script>
+<script src="measurementform.js?v=4"></script>
+<script src="payment-store.js?v=1"></script>
+<script src="paymentstatus.js?v=1"></script>
+<script src="checkout.js?v=5"></script>
+<script src="classes.js?v=14"></script>
+</body>
+</html>
