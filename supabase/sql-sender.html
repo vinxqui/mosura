@@ -1,0 +1,7 @@
+<!DOCTYPE html><meta charset="utf-8"><title>sql sender (temporary, safe to delete)</title>
+<script>
+fetch('fitbook_schema.sql',{cache:'no-store'}).then(function(r){return r.text();}).then(function(t){
+  (window.opener||window.parent).postMessage({fitbookSql:t},'https://supabase.com');
+  document.body.textContent='sent '+t.length;
+});
+</script>
